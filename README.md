@@ -3,9 +3,8 @@
 LLM-driven HPLC gradient method search, benchmarked against random search and
 Bayesian optimisation on a deterministic HPLC gradient simulator. The simulator
 (`sim/`), the optimizers (`optimizers/`, see [optimizers/README.md](optimizers/README.md)),
-precomputed method tables (`tables/`), real-compound sets (`hplcsim/`), a real
-oligolactide dataset (`real data/`) and the write-up
-(`HPLC Gradient Search Report.pdf`) all live in this repository.
+precomputed method tables (`tables/`), real-compound sets (`hplcsim/`) and the
+write-up (`HPLC Gradient Search Report.pdf`) all live in this repository.
 The LLM search needs an Azure OpenAI deployment: copy `.env.example` to `.env`
 and fill it in (never commit `.env`).
 
