@@ -1,0 +1,58 @@
+125 finished campaigns loaded from /Users/amitlal/Documents/Claude/osi hackthon/results/llm_transcripts, 25 to run
+  hard   seed 26  best 1.000  optimum at 4        201 s
+  hard   seed 25  best 1.000  optimum at 3        243 s
+  hard   seed 28  best 1.000  optimum at 4        247 s
+  hard   seed 29  best 1.000  optimum at 3        247 s
+  hard   seed 30  best 1.000  optimum at 5        249 s
+  hard   seed 27  best 1.000  optimum at 4        271 s
+  hard   seed 32  best 1.000  optimum at 3        224 s
+  hard   seed 31  best 1.000  optimum at 4        267 s
+  hard   seed 35  best 1.000  optimum at 4        237 s
+  hard   seed 36  best 1.000  optimum at 3        232 s
+-- 10/25 campaigns done, 503 s elapsed
+  hard   seed 34  best 1.000  optimum at 4        265 s
+  hard   seed 33  best 1.000  optimum at 4        268 s
+  hard   seed 38  best 1.000  optimum at 4        237 s
+  hard   seed 37  best 1.000  optimum at 4        245 s
+  hard   seed 39  best 1.000  optimum at 3        246 s
+  hard   seed 42  best 1.000  optimum at 4        225 s
+  hard   seed 40  best 1.000  optimum at 4        251 s
+  hard   seed 41  best 1.000  optimum at 3        249 s
+  hard   seed 43  best 1.000  optimum at 3        220 s
+  hard   seed 44  best 1.000  optimum at 4        221 s
+-- 20/25 campaigns done, 933 s elapsed
+  hard   seed 45  best 1.000  optimum at 4        218 s
+  hard   seed 46  best 1.000  optimum at 4        226 s
+  hard   seed 48  best 1.000  optimum at 4        225 s
+  hard   seed 47  best 1.000  optimum at 4        267 s
+  hard   seed 49  best 1.000  optimum at 4        250 s
+-- 25/25 campaigns done, 1175 s elapsed
+
+campaigns per set: {'easy': 50, 'medium': 50, 'hard': 50}
+-> /Users/amitlal/Documents/Claude/osi hackthon/results/llm_crf_over_runs.csv
+
+LLM search (Azure OpenAI): mean CRF of injection n (share truncated, share infeasible)
+set                      inj 5                inj 10                inj 15                inj 20                inj 25
+easy     0.949 (  0% tr   0% inf) 0.989 (  0% tr   0% inf) 0.995 (  0% tr   0% inf) 1.000 (  0% tr   0% inf) 1.000 (  0% tr   0% inf)
+medium   0.941 (  0% tr   0% inf) 0.955 (  0% tr   0% inf) 0.946 (  0% tr   0% inf) 0.939 (  0% tr   0% inf) 0.983 (  0% tr   0% inf)
+hard     0.966 (  0% tr   0% inf) 0.911 (  0% tr   0% inf) 0.951 (  0% tr   0% inf) 0.976 (  0% tr   0% inf) 1.000 (  0% tr   0% inf)
+
+LLM search (Azure OpenAI): mean best CRF after n injections (share of repeats within 1 % of the optimum)
+set                 @5           @10           @15           @20           @25
+easy      1.000 (100%)  1.000 (100%)  1.000 (100%)  1.000 (100%)  1.000 (100%)
+medium    0.968 ( 30%)  1.000 (100%)  1.000 (100%)  1.000 (100%)  1.000 (100%)
+hard      1.000 (100%)  1.000 (100%)  1.000 (100%)  1.000 (100%)  1.000 (100%)
+
+Random search: mean best CRF after n injections (share within 1 % of the optimum)
+set                 @5           @10           @15           @20           @25
+easy      0.862 ( 28%)  0.916 ( 46%)  0.947 ( 58%)  0.963 ( 68%)  0.979 ( 80%)
+medium    0.881 (  2%)  0.942 ( 16%)  0.963 ( 30%)  0.968 ( 34%)  0.975 ( 42%)
+hard      0.767 (  2%)  0.858 (  6%)  0.893 (  6%)  0.904 (  8%)  0.917 (  8%)
+
+Bayesian optimisation (GP-EI): mean best CRF after n injections (share within 1 % of the optimum)
+set                 @5           @10           @15           @20           @25
+easy      0.862 ( 28%)  0.951 ( 62%)  0.988 ( 86%)  0.995 ( 96%)  1.000 ( 98%)
+medium    0.881 (  2%)  0.946 ( 20%)  0.973 ( 48%)  0.986 ( 70%)  0.993 ( 84%)
+hard      0.767 (  2%)  0.905 ( 12%)  0.951 ( 26%)  0.965 ( 30%)  0.975 ( 40%)
+-> /Users/amitlal/Documents/Claude/osi hackthon/results/crf_over_runs.png
+-> /Users/amitlal/Documents/Claude/osi hackthon/results/crf_over_runs.csv

@@ -1,0 +1,51 @@
+# Default UHPLC instrument. Every physical constant used by the simulator lives
+# here or in crf.yaml; the code contains no magic numbers.
+
+# --- column geometry ---------------------------------------------------------
+L_mm: 100.0          # column length
+dc_mm: 2.1           # internal diameter
+dp_um: 1.8           # particle size (used only by the standalone pressure helper)
+eps: 0.65            # total porosity; V0 = eps * pi * (dc/2)^2 * L  -> 0.225 mL
+
+# --- flow and gradient delivery --------------------------------------------
+F_mL_min: 0.5        # flow rate, fixed for the campaign; t0 = V0 / F = 0.45 min
+VD_mL: 0.10          # dwell volume; gradient reaches the column tD = VD / F = 0.2 min late
+
+# --- efficiency ----------------------------------------------------------------
+N: 15000.0           # plate count at F = 0.5 mL/min
+sigma_ec_min: 0.02   # extra-column standard deviation (min), added in quadrature
+
+# --- limits ------------------------------------------------------------------
+t_max_min: 45.0      # maximum run time (last peak + re-equilibration)
+t_eq_min: 3.0        # re-equilibration time, added to run time
+
+# --- pressure model: reference only. Pressure is not part of the study; these constants
+#     feed the standalone sim/pressure.py helper and nothing in the simulator. -------------
+flow_resistance: 500.0   # dimensionless flow-resistance factor phi_0 of the packed bed
+
+# --- retention model ---------------------------------------------------------
+T_ref_C: 30.0        # reference temperature for log k_w and the van 't Hoff term
+
+# --- water/acetonitrile viscosity surface (mPa.s) ---------------------------
+# eta(phi, T) = [eta_water + a_mix*phi*(1-phi) - c_lin*phi] * exp(-T_coef*(T - T_ref_C))
+# eta(0) = 0.89 (water, 25 C), eta(1) = 0.37 (ACN), maximum at phi = (a_mix - c_lin)/(2 a_mix) = 0.20
+viscosity:
+  eta_water: 0.89
+  a_mix: 0.87
+  c_lin: 0.52
+  T_coef: 0.021
+  T_ref_C: 25.0
+
+# --- method bounds visible to the optimizer -------------------------------
+method_bounds:
+  phi0: [0.05, 0.60]
+  phi1_max: 0.95
+  min_dphi: 0.10
+  tG: [2.0, 40.0]
+  T: [25.0, 60.0]
+
+# --- detector (used only by sim.chromatogram; retention and CRF ignore it) --
+detector:
+  sampling_rate_hz: 10.0   # acquisition rate; samples 1/(60 f) = 1/600 min = 0.1 s apart, ~12 per 0.02 min sigma
+  noise_sd: 0.0            # default white-noise standard deviation, signal units; 0 -> noise-free, deterministic
+  drift: 0.0               # default total linear baseline rise over the run, signal units

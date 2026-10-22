@@ -1,0 +1,135 @@
+3 finished campaigns loaded from /Users/amitlal/Documents/Claude/osi hackthon/results/llm_transcripts, 147 to run
+  easy   seed  1  best 1.000  optimum at 1        112 s
+  easy   seed  3  best 1.000  optimum at 1        113 s
+  easy   seed  6  best 1.000  optimum at 1        119 s
+  easy   seed  2  best 1.000  optimum at 1        121 s
+  easy   seed  4  best 1.000  optimum at 1        121 s
+  easy   seed  5  best 1.000  optimum at 1        125 s
+  easy   seed  7  best 1.000  optimum at 1        112 s
+  easy   seed  8  best 1.000  optimum at 1        115 s
+  easy   seed  9  best 1.000  optimum at 1        112 s
+  easy   seed 11  best 1.000  optimum at 1        113 s
+-- 10/147 campaigns done, 234 s elapsed
+  easy   seed 10  best 1.000  optimum at 1        116 s
+  easy   seed 12  best 1.000  optimum at 1        117 s
+  easy   seed 14  best 1.000  optimum at 1        108 s
+  easy   seed 13  best 1.000  optimum at 1        125 s
+  easy   seed 15  best 1.000  optimum at 1        118 s
+  easy   seed 16  best 1.000  optimum at 1        117 s
+  easy   seed 18  best 1.000  optimum at 1        110 s
+  easy   seed 17  best 1.000  optimum at 1        116 s
+  easy   seed 19  best 1.000  optimum at 1        108 s
+  easy   seed 23  best 1.000  optimum at 1        111 s
+-- 20/147 campaigns done, 463 s elapsed
+  easy   seed 22  best 1.000  optimum at 1        112 s
+  easy   seed 24  best 1.000  optimum at 1        111 s
+  easy   seed 20  best 1.000  optimum at 1        116 s
+  easy   seed 21  best 1.000  optimum at 1        120 s
+  easy   seed 25  best 1.000  optimum at 1        113 s
+  easy   seed 28  best 1.000  optimum at 1        113 s
+  easy   seed 29  best 1.000  optimum at 1        111 s
+  easy   seed 30  best 1.000  optimum at 1        107 s
+  easy   seed 27  best 1.000  optimum at 1        118 s
+  easy   seed 26  best 1.000  optimum at 1        128 s
+-- 30/147 campaigns done, 591 s elapsed
+  easy   seed 31  best 1.000  optimum at 1        121 s
+  easy   seed 34  best 1.000  optimum at 1        113 s
+  easy   seed 33  best 1.000  optimum at 1        116 s
+  easy   seed 32  best 1.000  optimum at 1        117 s
+  easy   seed 35  best 1.000  optimum at 1        116 s
+  easy   seed 36  best 1.000  optimum at 1        108 s
+  easy   seed 37  best 1.000  optimum at 1        119 s
+  easy   seed 41  best 1.000  optimum at 1        105 s
+  easy   seed 40  best 1.000  optimum at 1        111 s
+  easy   seed 39  best 1.000  optimum at 1        119 s
+-- 40/147 campaigns done, 811 s elapsed
+  easy   seed 38  best 1.000  optimum at 1        123 s
+  easy   seed 42  best 1.000  optimum at 1        121 s
+  easy   seed 44  best 1.000  optimum at 1        110 s
+  easy   seed 45  best 1.000  optimum at 1        114 s
+  easy   seed 46  best 1.000  optimum at 1        106 s
+  easy   seed 43  best 1.000  optimum at 1        122 s
+  easy   seed 47  best 1.000  optimum at 1        107 s
+  easy   seed 48  best 1.000  optimum at 1        109 s
+  easy   seed 49  best 1.000  optimum at 1        116 s
+  medium seed  3  best 1.000  optimum at 6        195 s
+  medium seed  4  best 1.000  optimum at 5        193 s
+-- 50/147 campaigns done, 1113 s elapsed
+  medium seed  1  best 1.000  optimum at 6        217 s
+  medium seed  5  best 1.000  optimum at 6        208 s
+  medium seed  2  best 1.000  optimum at 6        236 s
+  medium seed  6  best 1.000  optimum at 6        254 s
+  medium seed  7  best 1.000  optimum at 6        199 s
+  medium seed  9  best 1.000  optimum at 5        192 s
+  medium seed 11  best 1.000  optimum at 8        193 s
+  medium seed  8  best 1.000  optimum at 5        249 s
+  medium seed 10  best 1.000  optimum at 9        245 s
+-- 60/147 campaigns done, 1381 s elapsed
+  medium seed 12  best 1.000  optimum at 4        252 s
+  medium seed 13  best 1.000  optimum at 6        230 s
+  medium seed 14  best 1.000  optimum at 6        227 s
+  medium seed 16  best 1.000  optimum at 6        210 s
+  medium seed 17  best 1.000  optimum at 6        195 s
+  medium seed 15  best 1.000  optimum at 6        241 s
+  medium seed 18  best 1.000  optimum at 6        187 s
+  medium seed 19  best 1.000  optimum at 7        191 s
+  medium seed 23  best 1.000  optimum at 6        197 s
+  medium seed 21  best 1.000  optimum at 7        213 s
+-- 70/147 campaigns done, 1785 s elapsed
+  medium seed 20  best 1.000  optimum at 10       238 s
+  medium seed 22  best 1.000  optimum at 6        248 s
+  medium seed 24  best 1.000  optimum at 5        238 s
+  medium seed 25  best 1.000  optimum at 7        238 s
+  medium seed 28  best 1.000  optimum at 6        192 s
+  medium seed 26  best 1.000  optimum at 5        202 s
+  medium seed 27  best 1.000  optimum at 6        212 s
+  medium seed 29  best 1.000  optimum at 9        197 s
+  medium seed 33  best 1.000  optimum at 5        185 s
+  medium seed 30  best 1.000  optimum at 5        225 s
+-- 80/147 campaigns done, 2185 s elapsed
+  medium seed 32  best 1.000  optimum at 6        211 s
+  medium seed 31  best 1.000  optimum at 5        233 s
+  medium seed 35  best 1.000  optimum at 5        205 s
+  medium seed 34  best 1.000  optimum at 5        268 s
+  medium seed 36  best 1.000  optimum at 6        197 s
+  medium seed 39  best 1.000  optimum at 6        208 s
+  medium seed 38  best 1.000  optimum at 6        223 s
+  medium seed 37  best 1.000  optimum at 5        235 s
+  medium seed 40  best 1.000  optimum at 7        203 s
+  medium seed 41  best 1.000  optimum at 5        195 s
+-- 90/147 campaigns done, 2461 s elapsed
+  medium seed 42  best 1.000  optimum at 6        208 s
+  medium seed 44  best 1.000  optimum at 6        196 s
+  medium seed 43  best 1.000  optimum at 7        223 s
+  medium seed 45  best 1.000  optimum at 6        245 s
+  medium seed 47  best 1.000  optimum at 6        207 s
+  medium seed 46  best 1.000  optimum at 5        241 s
+  medium seed 48  best 1.000  optimum at 6        184 s
+  medium seed 49  best 1.000  optimum at 6        215 s
+  hard   seed  1  best 1.000  optimum at 3        206 s
+  hard   seed  3  best 1.000  optimum at 3        189 s
+-- 100/147 campaigns done, 2857 s elapsed
+  hard   seed  4  best 1.000  optimum at 4        222 s
+  hard   seed  2  best 1.000  optimum at 4        241 s
+  hard   seed  5  best 1.000  optimum at 4        237 s
+  hard   seed  6  best 1.000  optimum at 4        190 s
+  hard   seed  7  best 1.000  optimum at 4        237 s
+  hard   seed  9  best 1.000  optimum at 4        217 s
+  hard   seed  8  best 1.000  optimum at 2        256 s
+  hard   seed 10  best 1.000  optimum at 4        224 s
+  hard   seed 11  best 1.000  optimum at 4        241 s
+  hard   seed 12  best 1.000  optimum at 4        229 s
+-- 110/147 campaigns done, 3246 s elapsed
+  hard   seed 14  best 1.000  optimum at 4        192 s
+  hard   seed 13  best 1.000  optimum at 4        224 s
+  hard   seed 15  best 1.000  optimum at 3        203 s
+  hard   seed 16  best 1.000  optimum at 4        215 s
+  hard   seed 18  best 1.000  optimum at 3        223 s
+  hard   seed 17  best 1.000  optimum at 3        241 s
+  hard   seed 20  best 1.000  optimum at 4        224 s
+  hard   seed 21  best 1.000  optimum at 4        222 s
+  hard   seed 19  best 1.000  optimum at 4        249 s
+  hard   seed 22  best 1.000  optimum at 4        232 s
+-- 120/147 campaigns done, 3576 s elapsed
+  hard   seed 23  best 1.000  optimum at 3        223 s
+  hard   seed 24  best 1.000  optimum at 3        218 s

@@ -1,0 +1,5 @@
+# Chromatographic response function.
+# CRF = mean_j min(R_j / R_target, 1) - w_t * max(0, (t_R,last - t_target) / t_target)
+R_target: 1.5     # baseline resolution; pairs beyond it earn nothing more
+t_target: 10.0    # min; runs shorter than this are not rewarded further
+w_t: 0.5          # a 20 min run loses 0.5; a 45 min run loses 1.75

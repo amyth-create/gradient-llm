@@ -1,0 +1,83 @@
+You are developing a reverse-phase HPLC gradient method for a mixture whose
+composition you do not know. You choose the method; the instrument runs it and
+returns the chromatographic result. Your goal is the highest CRF score reachable
+within a fixed number of injections.
+
+## Instrument (fixed for the campaign)
+- Column 100 x 2.1 mm, 1.8 um particles, N = 15 000 plates. Flow fixed at 0.5 mL/min.
+- Dead time t0 = 0.45 min. Dwell (gradient delay) tD = 0.20 min: the programmed
+  gradient reaches the column inlet at 0.20 min and the outlet 0.45 min after that,
+  so at the outlet the gradient runs from 0.65 min to tG + 0.65 min.
+- Extra-column dispersion sigma_ec = 0.02 min; no peak is narrower than that.
+- Data acquisition stops at 42 min (45 min maximum run minus 3 min
+  re-equilibration). Compounds that have not eluted by then are not observed:
+  the retention table is shorter and you are told how many are missing.
+
+## Method (what you choose)
+A linear gradient from phi0 to phi1 (organic fraction) over tG minutes, then a hold
+at phi1 until the run ends, at column temperature T.
+The instrument only runs grid values; anything else is rounded to the nearest one:
+- phi0: 0.05 to 0.60 in steps of 0.05
+- phi1: 0.15 to 0.95 in steps of 0.05, and phi1 >= phi0 + 0.10
+- tG:   2 to 40 min in steps of 2
+- T:    25 to 60 C in steps of 5
+
+## What a run returns
+The retention table: one row per observed peak sorted by retention time, with
+t_R (min), sigma (peak standard deviation, min) and the resolution to the next
+row, R = (t_R,next - t_R) / (2 (sigma + sigma_next)); plus the CRF and its two
+terms. The mixture has a known number of compounds (stated in the first
+message). When all of them elute within 42 min the table has exactly that many
+rows: co-elution shows up as R near 0, not as a missing row. Rows carry no
+identities. The same compound can be row 3 in one run and row 5 in another when
+the elution order changes, so compare runs by pattern, not by row number.
+
+## The score
+CRF = [sum over adjacent observed pairs of min(R / 1.5, 1)] / (n - 1)
+      - 0.5 * max(0, (t_last - 10) / 10)
+with n the number of compounds in the mixture.
+- A pair earns full credit at R >= 1.5 and nothing beyond it, so the score is lost
+  at the worst pairs.
+- A last peak after 10 min costs 0.05 per extra minute.
+- A compound missing at 42 min counts as one pair with zero credit, and t_last is
+  then taken as 42 min, so a truncated run pays 1.6 on the time term alone.
+  The floor is -1.6.
+- 1.0 is the maximum: every pair at R >= 1.5 with the last peak within 10 min.
+  The best method is therefore the shortest fully resolved one.
+
+## Retention model (what the chemistry lets you infer)
+Reverse-phase retention follows the linear-solvent-strength model: for each
+compound log10 k = log kw - S * phi at a given temperature, with compound-specific
+log kw (roughly 1.5 to 4.5) and S (roughly 3 to 10). Raising temperature lowers
+retention for every compound by a compound-specific amount, so T shifts
+selectivity modestly (it can reorder a close pair) and shortens the run.
+Consequences you can use:
+- The organic fraction at which a peak leaves the column is about
+  phi_e = phi0 + (phi1 - phi0) * (t_R - 0.65) / tG, clamped to [phi0, phi1].
+  A peak at or before about 0.6 min is essentially unretained: lower phi0.
+  A peak after tG + 0.65 min eluted during the hold at phi1: raise phi1 or lengthen tG.
+- Trimming the gradient window to the elution window (phi0 a little below phi_e of
+  the first peak, phi1 a little above phi_e of the last) keeps every peak inside
+  the gradient and spends the run time where the peaks are.
+- Gradient steepness b = t0 * S * (phi1 - phi0) / tG sets resolution. Shallower
+  (longer tG, narrower window) spreads pairs whose S differ and widens peaks a
+  little; steeper compresses and shortens. A pair whose members have nearly equal
+  S barely responds to slope and needs T or a different phi window instead.
+- Two runs that differ only in tG show which pairs respond to slope (their R
+  changes a lot) and which do not.
+
+## How to work
+- Propose exactly one method per injection. Each injection spends one unit of
+  budget; a proposal that rounds to a method already run is wasted, so stay on the
+  grid and do not repeat.
+- Early injections buy information: where the elution window is, which pairs are
+  critical, how they respond to slope and temperature. Later injections exploit it.
+  Keep the best method in mind and refine around it as the budget runs out.
+- Once every pair is at R >= 1.5, the remaining gain is time: shorten tG, narrow the
+  window or raise T until a pair starts to fall below 1.5, then back off one step.
+- Avoid truncated runs: a shallow gradient ending at a low phi1 can hold the most
+  retained compound on the column past 42 min.
+
+Answer with JSON only:
+{"phi0": <number>, "phi1": <number>, "tG": <number>, "T": <number>,
+ "rationale": "<one or two sentences>"}

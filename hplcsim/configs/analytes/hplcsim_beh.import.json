@@ -1,0 +1,243 @@
+{
+  "analyte_set": "hplcsim_beh",
+  "source": "/Users/amitlal/Documents/Claude/osi hackthon/configs/external/hplcsim_compounds.json",
+  "phase": "Waters Acquity BEH C18",
+  "solvent": "acetonitrile",
+  "model_note": "library log10 k = (w + m T) + (v + n T) phi fitted to log_kw + dH (1/T_ref - 1/T) - S phi over the method box; full weight for 0.5 <= k <= 50.0, 0.1 elsewhere; residuals in log10 k",
+  "n": 21,
+  "fits": [
+    {
+      "name": "2-acetylfuran",
+      "library_id": 0,
+      "log_kw": 0.5662913858505112,
+      "S": 2.834594172497794,
+      "dH": 10.173676764465426,
+      "rmse_window": 0.04832054317690641,
+      "max_abs_window": 0.12748696254912467,
+      "max_abs_all": 0.4257908255797158,
+      "n_window": 46
+    },
+    {
+      "name": "acetanilide",
+      "library_id": 1,
+      "log_kw": 1.097537181412068,
+      "S": 4.002540848999973,
+      "dH": -386.51120935196275,
+      "rmse_window": 0.03180744210023771,
+      "max_abs_window": 0.08673020548596677,
+      "max_abs_all": 0.28067381633745603,
+      "n_window": 48
+    },
+    {
+      "name": "acetophenone",
+      "library_id": 2,
+      "log_kw": 1.5865913545597938,
+      "S": 3.7636167369052638,
+      "dH": -515.6212628701578,
+      "rmse_window": 0.007114353469762032,
+      "max_abs_window": 0.021265001757627466,
+      "max_abs_all": 0.04861309725212282,
+      "n_window": 73
+    },
+    {
+      "name": "benzophenone",
+      "library_id": 3,
+      "log_kw": 2.641092100453224,
+      "S": 4.211637302022251,
+      "dH": -648.6142993822401,
+      "rmse_window": 0.0034341698575953827,
+      "max_abs_window": 0.009299177480432075,
+      "max_abs_all": 0.015352736178478654,
+      "n_window": 76
+    },
+    {
+      "name": "butylparaben",
+      "library_id": 4,
+      "log_kw": 2.7091700407923076,
+      "S": 4.86625923113103,
+      "dH": -675.7641750891848,
+      "rmse_window": 0.003697593497245507,
+      "max_abs_window": 0.010603819122170899,
+      "max_abs_all": 0.020691164491438485,
+      "n_window": 65
+    },
+    {
+      "name": "propiopheneone",
+      "library_id": 5,
+      "log_kw": 2.0150637523877855,
+      "S": 3.8203237892618787,
+      "dH": -556.4475915817853,
+      "rmse_window": 0.0037876110485724006,
+      "max_abs_window": 0.011153185823969514,
+      "max_abs_all": 0.01970770106644082,
+      "n_window": 84
+    },
+    {
+      "name": "valerophenone",
+      "library_id": 6,
+      "log_kw": 2.7097124442297535,
+      "S": 4.027767771789091,
+      "dH": -618.6775695524595,
+      "rmse_window": 0.0022577850673951515,
+      "max_abs_window": 0.004125694608499764,
+      "max_abs_all": 0.004975787055772507,
+      "n_window": 79
+    },
+    {
+      "name": "acenaphthene",
+      "library_id": 7,
+      "log_kw": 2.912671819022361,
+      "S": 3.8018895983880623,
+      "dH": -727.86376955801,
+      "rmse_window": 0.0026797478344021412,
+      "max_abs_window": 0.005957215540822958,
+      "max_abs_all": 0.008055174724887593,
+      "n_window": 84
+    },
+    {
+      "name": "heptanophenone",
+      "library_id": 8,
+      "log_kw": 3.1849078817301453,
+      "S": 3.9630913858625383,
+      "dH": -706.1907934966478,
+      "rmse_window": 0.006960790267164913,
+      "max_abs_window": 0.02034712445881537,
+      "max_abs_all": 0.04188660324353055,
+      "n_window": 81
+    },
+    {
+      "name": "naphthalene",
+      "library_id": 9,
+      "log_kw": 2.611237083335555,
+      "S": 3.84082458804982,
+      "dH": -685.2768327445311,
+      "rmse_window": 0.006972012457925608,
+      "max_abs_window": 0.01976744476096215,
+      "max_abs_all": 0.03185921756600063,
+      "n_window": 84
+    },
+    {
+      "name": "octanophenone",
+      "library_id": 10,
+      "log_kw": 3.3489979883757357,
+      "S": 3.861858357385818,
+      "dH": -761.1590275926824,
+      "rmse_window": 0.011179633477753637,
+      "max_abs_window": 0.030911625487199945,
+      "max_abs_all": 0.06748577624164698,
+      "n_window": 84
+    },
+    {
+      "name": "caffeine",
+      "library_id": 11,
+      "log_kw": 0.8880186753789333,
+      "S": 6.088083091183727,
+      "dH": 307.49206534691723,
+      "rmse_window": 0.11876824860207272,
+      "max_abs_window": 0.25670505131597987,
+      "max_abs_all": 0.8461723890493746,
+      "n_window": 30
+    },
+    {
+      "name": "ethylparaben",
+      "library_id": 12,
+      "log_kw": 2.027586778118014,
+      "S": 4.8725069368073655,
+      "dH": -671.3799044776503,
+      "rmse_window": 0.009705652615227205,
+      "max_abs_window": 0.029739381999502212,
+      "max_abs_all": 0.07673187136726733,
+      "n_window": 66
+    },
+    {
+      "name": "methylparaben",
+      "library_id": 13,
+      "log_kw": 1.6048515546194644,
+      "S": 4.714566197159902,
+      "dH": -688.839993902246,
+      "rmse_window": 0.016037735312943002,
+      "max_abs_window": 0.04638055664746843,
+      "max_abs_all": 0.12916757305394855,
+      "n_window": 58
+    },
+    {
+      "name": "propylparaben",
+      "library_id": 14,
+      "log_kw": 2.4040346578549032,
+      "S": 4.909287159839108,
+      "dH": -690.4415273668451,
+      "rmse_window": 0.005093279020032225,
+      "max_abs_window": 0.015624617476614366,
+      "max_abs_all": 0.031829728746515684,
+      "n_window": 65
+    },
+    {
+      "name": "ibuprofen",
+      "library_id": 15,
+      "log_kw": 2.91766744353361,
+      "S": 4.519939791134898,
+      "dH": -608.8677760434734,
+      "rmse_window": 0.002970110416498841,
+      "max_abs_window": 0.007925808893382014,
+      "max_abs_all": 0.012783219683681235,
+      "n_window": 71
+    },
+    {
+      "name": "fenoprofen",
+      "library_id": 16,
+      "log_kw": 2.7331269309043553,
+      "S": 4.672396027189266,
+      "dH": -679.7355677572373,
+      "rmse_window": 0.00809822641520725,
+      "max_abs_window": 0.023200738492429762,
+      "max_abs_all": 0.049317885937157246,
+      "n_window": 69
+    },
+    {
+      "name": "ketoprofen",
+      "library_id": 17,
+      "log_kw": 2.3824604813360244,
+      "S": 4.732551893011975,
+      "dH": -646.8397775115301,
+      "rmse_window": 0.0069734323357643355,
+      "max_abs_window": 0.022147927979397686,
+      "max_abs_all": 0.0461646068003736,
+      "n_window": 68
+    },
+    {
+      "name": "3-nitrophenol",
+      "library_id": 18,
+      "log_kw": 1.4675927206057906,
+      "S": 3.663842797837328,
+      "dH": -808.3721288834282,
+      "rmse_window": 0.01666655549200391,
+      "max_abs_window": 0.04966485473063864,
+      "max_abs_all": 0.12534197432539984,
+      "n_window": 69
+    },
+    {
+      "name": "4-nitrophenol",
+      "library_id": 19,
+      "log_kw": 1.3882346664310075,
+      "S": 3.6024801558363166,
+      "dH": -815.9693509719581,
+      "rmse_window": 0.023187958074543442,
+      "max_abs_window": 0.06715321806292662,
+      "max_abs_all": 0.1720059703211354,
+      "n_window": 67
+    },
+    {
+      "name": "anthracene",
+      "library_id": 20,
+      "log_kw": 3.122375769086492,
+      "S": 3.904398664449655,
+      "dH": -812.5585690536215,
+      "rmse_window": 0.006700768371542845,
+      "max_abs_window": 0.019938655540078898,
+      "max_abs_all": 0.04004886927116491,
+      "n_window": 81
+    }
+  ],
+  "worst_rmse_window": 0.11876824860207272,
+  "worst_max_abs_window": 0.25670505131597987
+}
