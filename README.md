@@ -13,8 +13,7 @@ and fill it in (never commit `.env`).
 
 A deterministic function from one linear-gradient method to one retention table
 and one CRF score. It stands in for an HPLC instrument: optimizers query it one
-method at a time and never see the analyte parameters behind it. Built to the
-spec in `HPLC Gradient Simulator — Spec.md`.
+method at a time and never see the analyte parameters behind it.
 
 ### Setup
 
@@ -122,64 +121,55 @@ the detector artefacts. [examples/hard_optimum.png](examples/hard_optimum.png)
 is that command's output: ten peaks, the last one broad and clearly shorter
 than the early ones.
 
-### Where the implementation departs from the spec text
+### Model
 
-Each of these follows the spec's stated intent or its tests where the formula
-as written did not.
-
-1. **Sign of the temperature term.** The spec writes
-   `log k = log k_w + dH (1/T - 1/T_ref) - S phi` and says dH is negative so
-   that retention falls as T rises. With negative dH that expression makes
-   retention *rise* with T. The code uses `dH (1/T_ref - 1/T)`, which is the
-   van 't Hoff form and gives the stated behaviour (temperature-direction test).
-2. **Regime 3 (analyte still on the column when the gradient ends).** The spec's
-   `t_R = t_D + t_G + t_0 (1 - x_G)(1 + k_1)` mixes the inlet-time and real-time
-   frames and is off by `x_G t_0` (up to ~0.45 min, enough to fail the 1 %
-   agreement with the integrator). The code derives the exact expression from
-   the same migration integral: `t_R = t_D + t_G + t_0 + (1 - x_G) t_0 k_1`,
-   which matches the RK4 reference to numerical precision.
-3. **Pressure removed from the study.** The spec's pressure model and P_max check are
-   not part of the simulator: `Result` has no pressure field, feasibility checks only
-   bounds, and no table or optimizer sees pressure. With the defaults the
-   limit never bound anyway (worst case about 530 bar against 600). The model survives
-   as the standalone `sim/pressure.py`, unit-tested, with the viscosity coefficient
-   0.87 instead of the spec's 1.2 so its maximum sits at phi = 0.20 as the spec intends.
-4. **Run time: truncation instead of infeasibility.** The spec makes a method whose
-   last peak plus re-equilibration exceeds t_max infeasible (nan CRF, empty table).
-   The code instead ends the run at `t_end = t_max - t_eq` (42 min) and reports what
-   the detector saw by then: peaks eluting later are not observed, the method stays
-   feasible, `retention_table` holds only the observed peaks, `n_missing` counts the
-   rest, and `run_time` is `min(t_R,last, t_end) + t_eq`. The CRF (`crf_truncated`)
-   credits adjacent observed pairs as usual, gives each missing analyte one pair with
-   zero credit (the denominator stays n - 1, so a lost peak scores exactly like a
-   fully co-eluting one) and charges the time term at `min(t_R,last observed, t_end)`,
-   i.e. at t_end whenever anything is missing; its floor is
-   `-w_t (t_end - t_target) / t_target = -1.6`. Why: the time term already penalises
-   late runs, so the cut-off was a cliff in an otherwise smooth landscape (a run
-   ending at 41.9 min scored about -1.6 while 42.1 min scored nan); a truncated
-   chromatogram is what an operator actually sees when the run ends; and scoring a
-   missing peak as co-eluting closes the loophole of a method looking good because
-   its hardest peak never showed up. Only the bounds make a method infeasible.
-5. **dphi box.** `bounds()` exposes `dphi in [0.10, 0.90]`. Since phi1 must also
-   stay below 0.95, the box is a superset of the feasible region and the
-   `phi1 <= 0.95` constraint is re-checked in `run()` (reason "bounds").
+- **Retention.** Each analyte has three parameters: `log_kw` (retention in pure
+  water), `S` (solvent-strength slope) and `dH` (enthalpy term, negative). At
+  organic fraction `phi` and temperature `T`:
+  `log k = log k_w + dH (1/T_ref - 1/T) - S phi`, the van 't Hoff form, so
+  retention falls as temperature rises.
+- **Gradient elution.** A linear gradient from `phi0` to `phi1` over `tG`, with
+  the dwell time and dead time from `configs/instrument.yaml`. Retention times
+  come from the closed-form linear-solvent-strength solution for the three
+  regimes (elutes before the gradient reaches it, elutes during the gradient,
+  still on the column when the gradient ends; in the last case
+  `t_R = t_D + t_G + t_0 + (1 - x_G) t_0 k_1`), checked against an RK4
+  integration of the migration integral to numerical precision.
+- **Peak width.** Sigma from the plate count and the retention factor at
+  elution, with band compression and an extra-column term.
+- **Run end and truncation.** The run ends at `t_end = t_max - t_eq` (42 min).
+  Peaks eluting later are not observed: `retention_table` holds only the
+  observed peaks, `n_missing` counts the rest, and `run_time` is
+  `min(t_R,last, t_end) + t_eq`. The method stays feasible; only the bounds make
+  a method infeasible.
+- **CRF.** Resolution credit over adjacent observed pairs plus a run-time term,
+  in `[-1.6, 1]`. Each missing analyte contributes one pair with zero credit
+  (the denominator stays n - 1, so a lost peak scores exactly like a fully
+  co-eluting one) and the time term is charged at `min(t_R,last observed,
+  t_end)`, i.e. at t_end whenever anything is missing. The time term already
+  penalises late runs, so there is no cliff in the landscape, a truncated
+  chromatogram is what an operator actually sees when the run ends, and a method
+  cannot look good because its hardest peak never showed up. Weights live in
+  `configs/crf.yaml`.
+- **Bounds.** `bounds()` exposes a box over `(phi0, dphi, tG, T)` with
+  `dphi in [0.10, 0.90]`. Since phi1 must also stay below 0.95, the box is a
+  superset of the feasible region and `phi1 <= 0.95` is re-checked in `run()`
+  (reason "bounds").
+- **Pressure.** Not part of the study: `Result` has no pressure field and no
+  table or optimizer sees pressure. With the default instrument the limit never
+  binds (worst case about 530 bar against 600). A Darcy/Kozeny-Carman model
+  survives as the standalone, unit-tested `sim/pressure.py`.
 
 ### Difficulty of the generated sets
 
-All three stored optima reach CRF 1.0 (the spec floors are 0.9 / 0.9 / 0.7), so
-difficulty shows up as the size of the region an optimizer must find, not as a
-lower ceiling. Share of feasible grid points with CRF >= 0.99:
+All three stored optima reach CRF 1.0, so difficulty shows up as the size of
+the region an optimizer must find, not as a lower ceiling. Share of feasible grid points with CRF >= 0.99:
 
 | set        | n  | CRF >= 0.99 |
 |------------|----|-------------|
 | easy       | 6  | 5.7 %       |
 | medium     | 8  | 2.1 %       |
 | hard       | 10 | 0.4 %       |
-
-The spec's fourth set, rp_variant (the medium set with S permuted among analytes
-and dH scaled by 1.5), was dropped from the study: permuting S breaks up the near
-pairs, so it came out easier than medium instead of being a same-difficulty
-transfer test.
 
 ### Real-compound sets from the HPLC Simulator library
 

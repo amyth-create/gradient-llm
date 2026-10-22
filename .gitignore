@@ -15,3 +15,6 @@ dist/
 
 # macOS
 .DS_Store
+
+# working notes kept out of the repo
+HPLC Gradient Simulator — Spec.md
