@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from pathlib import Path
 from typing import Iterable, Sequence
 
@@ -43,8 +44,18 @@ def table_dir(set_name: str) -> Path:
     return set_root(set_name) / "tables"
 
 
+RESULTS_DIR_VAR = "HPLC_RESULTS_DIR"
+
+
 def results_dir(set_name: str) -> Path:
-    return set_root(set_name) / "results"
+    """``<set root>/results``, or ``$HPLC_RESULTS_DIR`` for every set when that is set.
+
+    The override keeps one run's outputs apart from the committed ones, e.g. the LLM
+    transcripts and tables of a second deployment under ``deployments/<name>/results``;
+    without it the resumable LLM runner would pick up the first model's transcripts.
+    """
+    override = os.environ.get(RESULTS_DIR_VAR)
+    return Path(override).expanduser() if override else set_root(set_name) / "results"
 
 # Order of the decision vector used by optimizers: a box in (phi0, dphi, tG, T).
 VECTOR_NAMES: tuple[str, ...] = ("phi0", "dphi", "tG", "T")

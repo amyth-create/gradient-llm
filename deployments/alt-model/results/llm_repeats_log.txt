@@ -1,0 +1,67 @@
+0 finished campaigns loaded from /Users/amitlal/Documents/Claude/osi hackthon/deployments/alt-model/results/llm_transcripts, 50 to run
+  hard   seed  2  best 1.000  optimum at 16        75 s
+  hard   seed  5  best 1.000  optimum at 11        77 s
+  hard   seed  3  best 1.000  optimum at 12        80 s
+  hard   seed  0  best 1.000  optimum at 14        81 s
+  hard   seed  1  best 1.000  optimum at 3         81 s
+  hard   seed  4  best 1.000  optimum at 9         81 s
+  hard   seed  9  best 1.000  optimum at 14        67 s
+  hard   seed  6  best 1.000  optimum at 6         75 s
+  hard   seed  7  best 1.000  optimum at 8         74 s
+  hard   seed  8  best 1.000  optimum at 8         74 s
+-- 10/50 campaigns done, 153 s elapsed
+  hard   seed 10  best 1.000  optimum at 2         75 s
+  hard   seed 11  best 1.000  optimum at 12        79 s
+  hard   seed 14  best 1.000  optimum at 17        71 s
+  hard   seed 13  best 1.000  optimum at 13        72 s
+  hard   seed 12  best 1.000  optimum at 7         75 s
+  hard   seed 15  best 1.000  optimum at 11        74 s
+  hard   seed 16  best 1.000  optimum at 21        75 s
+  hard   seed 17  best 1.000  optimum at 9         75 s
+  hard   seed 19  best 1.000  optimum at 11        71 s
+  hard   seed 18  best 1.000  optimum at 11        75 s
+-- 20/50 campaigns done, 297 s elapsed
+  hard   seed 20  best 1.000  optimum at 4         77 s
+  hard   seed 21  best 1.000  optimum at 4         77 s
+  hard   seed 23  best 1.000  optimum at 12        72 s
+  hard   seed 22  best 1.000  optimum at 4         77 s
+  hard   seed 25  best 1.000  optimum at 9         71 s
+  hard   seed 28  best 1.000  optimum at 11        76 s
+  hard   seed 27  best 1.000  optimum at 15        79 s
+  hard   seed 26  best 1.000  optimum at 5         86 s
+  hard   seed 29  best 1.000  optimum at 5         79 s
+  hard   seed 24  best 1.000  optimum at 16        99 s
+-- 30/50 campaigns done, 392 s elapsed
+  hard   seed 30  best 1.000  optimum at 13        76 s
+  hard   seed 31  best 1.000  optimum at 6         72 s
+  hard   seed 32  best 1.000  optimum at 7         80 s
+  hard   seed 35  best 1.000  optimum at 2         73 s
+  hard   seed 34  best 1.000  optimum at 10        81 s
+  hard   seed 33  best 1.000  optimum at 13        83 s
+  hard   seed 36  best 1.000  optimum at 12        87 s
+  hard   seed 37  best 1.000  optimum at 10        78 s
+  hard   seed 38  best 1.000  optimum at 11        72 s
+  hard   seed 39  best 1.000  optimum at 7         77 s
+-- 40/50 campaigns done, 543 s elapsed
+  hard   seed 40  best 1.000  optimum at 12        80 s
+  hard   seed 41  best 1.000  optimum at 8         79 s
+  hard   seed 42  best 1.000  optimum at 9         79 s
+  hard   seed 43  best 1.000  optimum at 9         80 s
+  hard   seed 44  best 1.000  optimum at 17        79 s
+  hard   seed 45  best 1.000  optimum at 13        74 s
+  hard   seed 47  best 1.000  optimum at 10        72 s
+  hard   seed 46  best 1.000  optimum at 7         79 s
+  hard   seed 49  best 1.000  optimum at 16        75 s
+  hard   seed 48  best 1.000  optimum at 12        85 s
+-- 50/50 campaigns done, 695 s elapsed
+
+campaigns per set: {'hard': 50}
+-> /Users/amitlal/Documents/Claude/osi hackthon/deployments/alt-model/results/llm_crf_over_runs.csv
+
+LLM search (Azure OpenAI): mean CRF of injection n (share truncated, share infeasible)
+set                      inj 5                inj 10                inj 15                inj 20                inj 25
+hard     0.892 (  2% tr   0% inf) 0.960 (  0% tr   0% inf) 0.957 (  0% tr   0% inf) 0.949 (  0% tr   0% inf) 0.955 (  0% tr   0% inf)
+
+LLM search (Azure OpenAI): mean best CRF after n injections (share of repeats within 1 % of the optimum)
+set                 @5           @10           @15           @20           @25
+hard      0.964 ( 16%)  0.992 ( 50%)  0.998 ( 88%)  0.999 ( 98%)  1.000 (100%)

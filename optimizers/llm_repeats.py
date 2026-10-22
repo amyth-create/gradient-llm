@@ -11,7 +11,8 @@ instead of re-run, so the batch can be interrupted and resumed. A campaign that
 fails (API error, unparseable output) is retried up to ``--attempts`` times and
 otherwise skipped with a message; it can be re-run later.
 
-Outputs, in ``results/``:
+Outputs, in ``results/`` (or ``$HPLC_RESULTS_DIR`` when set; ``deployments/run.sh`` sets it
+together with ``$HPLC_ENV_FILE`` so a second deployment never touches these files):
 
 - ``llm_crf_over_runs.csv``: every injection of every LLM campaign, same columns as the other repeats CSVs
 - ``crf_over_runs.png`` / ``crf_over_runs.csv``: random search, BO and the LLM search overlaid, 50 repeats each (``--figure``)

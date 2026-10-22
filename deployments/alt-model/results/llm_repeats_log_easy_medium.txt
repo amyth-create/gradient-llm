@@ -1,0 +1,146 @@
+0 finished campaigns loaded from /Users/amitlal/Documents/Claude/osi hackthon/deployments/alt-model/results/llm_transcripts, /Users/amitlal/Documents/Claude/osi hackthon/deployments/alt-model/results/llm_transcripts, 100 to run
+  easy   seed  4  best 1.000  optimum at 2         73 s
+  easy   seed  2  best 1.000  optimum at 2         74 s
+  easy   seed  3  best 1.000  optimum at 3         74 s
+  easy   seed  0  best 1.000  optimum at 2         76 s
+  easy   seed  1  best 1.000  optimum at 3         80 s
+  easy   seed  5  best 1.000  optimum at 3         80 s
+  easy   seed  8  best 1.000  optimum at 2         69 s
+  easy   seed  9  best 1.000  optimum at 3         70 s
+  easy   seed  7  best 1.000  optimum at 3         74 s
+  easy   seed 10  best 1.000  optimum at 4         72 s
+-- 10/100 campaigns done, 151 s elapsed
+  easy   seed  6  best 1.000  optimum at 2         82 s
+  easy   seed 11  best 1.000  optimum at 3         75 s
+  easy   seed 12  best 1.000  optimum at 3         69 s
+  easy   seed 13  best 1.000  optimum at 2         68 s
+  easy   seed 14  best 1.000  optimum at 2         71 s
+  easy   seed 17  best 1.000  optimum at 2         70 s
+  easy   seed 15  best 1.000  optimum at 3         75 s
+  easy   seed 16  best 1.000  optimum at 3         76 s
+  easy   seed 18  best 1.000  optimum at 3         73 s
+  easy   seed 20  best 1.000  optimum at 3         65 s
+-- 20/100 campaigns done, 285 s elapsed
+  easy   seed 19  best 1.000  optimum at 3         75 s
+  easy   seed 22  best 1.000  optimum at 3         66 s
+  easy   seed 21  best 1.000  optimum at 2         68 s
+  easy   seed 23  best 1.000  optimum at 3         75 s
+  easy   seed 25  best 1.000  optimum at 2         72 s
+  easy   seed 24  best 1.000  optimum at 3         84 s
+  easy   seed 28  best 1.000  optimum at 3         80 s
+  easy   seed 26  best 1.000  optimum at 3         84 s
+  easy   seed 27  best 1.000  optimum at 2         82 s
+  easy   seed 29  best 1.000  optimum at 6         79 s
+-- 30/100 campaigns done, 385 s elapsed
+  easy   seed 30  best 1.000  optimum at 2         82 s
+  easy   seed 31  best 1.000  optimum at 3         71 s
+  easy   seed 32  best 1.000  optimum at 3         69 s
+  easy   seed 33  best 1.000  optimum at 2         69 s
+  easy   seed 34  best 1.000  optimum at 3         79 s
+  easy   seed 35  best 1.000  optimum at 2         73 s
+  easy   seed 39  attempt 1/3 failed after 11 injections: BadRequestError: Error code: 400 - {'error': {'message': 'Invalid prompt: your prompt was flagged as potentially violating our usage policy. Please try again with a different pr
+  easy   seed 36  best 1.000  optimum at 2         75 s
+  easy   seed 38  best 1.000  optimum at 3         75 s
+  easy   seed 37  best 1.000  optimum at 3         80 s
+  easy   seed 40  best 1.000  optimum at 3         72 s
+-- 40/100 campaigns done, 526 s elapsed
+  easy   seed 41  best 1.000  optimum at 3         81 s
+  easy   seed 39  best 1.000  optimum at 3         73 s
+  easy   seed 42  best 1.000  optimum at 2         71 s
+  easy   seed 43  best 1.000  optimum at 4         73 s
+  easy   seed 44  best 1.000  optimum at 3         78 s
+  easy   seed 45  best 1.000  optimum at 3         74 s
+  easy   seed 46  best 1.000  optimum at 3         80 s
+  easy   seed 47  best 1.000  optimum at 3         84 s
+  easy   seed 48  best 1.000  optimum at 2         73 s
+  easy   seed 49  best 1.000  optimum at 3         77 s
+-- 50/100 campaigns done, 666 s elapsed
+  medium seed  0  best 1.000  optimum at 17        85 s
+  medium seed  1  best 0.999  optimum at 16        83 s
+  medium seed  2  best 0.996  optimum at 13        91 s
+  medium seed  3  best 0.999  optimum at 10        79 s
+  medium seed  4  best 1.000  optimum at 21        74 s
+  medium seed  5  best 0.954  not found            78 s
+  medium seed  6  best 0.973  not found            70 s
+  medium seed  7  best 0.985  not found            73 s
+  medium seed  8  best 1.000  optimum at 11        81 s
+  medium seed  9  best 1.000  optimum at 17        82 s
+-- 60/100 campaigns done, 802 s elapsed
+  medium seed 10  best 0.996  optimum at 15        84 s
+  medium seed 11  best 1.000  optimum at 12        78 s
+  medium seed 12  best 1.000  optimum at 9         73 s
+  medium seed 13  best 1.000  optimum at 19        79 s
+  medium seed 14  best 0.995  optimum at 11        78 s
+  medium seed 15  best 1.000  optimum at 11        80 s
+  medium seed 17  best 0.987  not found            79 s
+  medium seed 18  best 0.999  optimum at 13        85 s
+  medium seed 19  best 0.987  not found            83 s
+  medium seed 16  best 0.999  optimum at 14       112 s
+-- 70/100 campaigns done, 928 s elapsed
+  medium seed 20  best 0.996  optimum at 15        86 s
+  medium seed 21  best 0.971  not found            90 s
+  medium seed 22  best 1.000  optimum at 10        77 s
+  medium seed 23  best 1.000  optimum at 10        90 s
+  medium seed 24  best 0.987  not found            88 s
+  medium seed 25  best 1.000  optimum at 17        80 s
+  medium seed 26  best 1.000  optimum at 9         84 s
+  medium seed 27  best 0.995  optimum at 12        87 s
+  medium seed 28  best 1.000  optimum at 13        88 s
+  medium seed 29  best 0.996  optimum at 13        78 s
+-- 80/100 campaigns done, 1078 s elapsed
+  medium seed 30  best 0.935  not found            82 s
+  medium seed 31  best 0.996  optimum at 20        87 s
+  medium seed 32  best 0.968  not found            80 s
+  medium seed 33  best 0.999  optimum at 16        89 s
+  medium seed 34  best 0.996  optimum at 14        96 s
+  medium seed 35  best 0.973  not found            88 s
+  medium seed 37  best 0.999  optimum at 23        88 s
+  medium seed 36  best 1.000  optimum at 9        102 s
+  medium seed 38  best 0.999  optimum at 11        84 s
+  medium seed 39  best 1.000  optimum at 12        74 s
+-- 90/100 campaigns done, 1221 s elapsed
+  medium seed 40  best 1.000  optimum at 10        75 s
+  medium seed 41  best 1.000  optimum at 9         79 s
+  medium seed 42  best 1.000  optimum at 10        78 s
+  medium seed 43  best 1.000  optimum at 17        79 s
+  medium seed 44  best 1.000  optimum at 15        83 s
+  medium seed 45  best 1.000  optimum at 13        78 s
+  medium seed 46  best 0.996  optimum at 22        76 s
+  medium seed 47  best 0.995  optimum at 13        77 s
+  medium seed 48  best 1.000  optimum at 17        74 s
+  medium seed 49  best 1.000  optimum at 10        83 s
+-- 100/100 campaigns done, 1352 s elapsed
+
+campaigns per set: {'easy': 50, 'medium': 50}
+-> /Users/amitlal/Documents/Claude/osi hackthon/deployments/alt-model/results/llm_crf_over_runs.csv
+
+LLM search (Azure OpenAI): mean CRF of injection n (share truncated, share infeasible)
+set                      inj 5                inj 10                inj 15                inj 20                inj 25
+easy     0.984 (  0% tr   0% inf) 0.976 (  0% tr   0% inf) 0.985 (  0% tr   0% inf) 0.991 (  0% tr   0% inf) 0.988 (  0% tr   0% inf)
+medium   0.878 (  0% tr   0% inf) 0.923 (  0% tr   0% inf) 0.933 (  0% tr   0% inf) 0.928 (  0% tr   0% inf) 0.937 (  0% tr   0% inf)
+
+LLM search (Azure OpenAI): mean best CRF after n injections (share of repeats within 1 % of the optimum)
+set                 @5           @10           @15           @20           @25
+easy      1.000 ( 98%)  1.000 (100%)  1.000 (100%)  1.000 (100%)  1.000 (100%)
+medium    0.924 (  0%)  0.958 ( 20%)  0.980 ( 56%)  0.990 ( 74%)  0.993 ( 80%)
+  medium seed 45  best 1.000  optimum at 10        78 s
+  medium seed 44  best 1.000  optimum at 13        82 s
+  medium seed 46  best 0.999  optimum at 10        72 s
+  medium seed 47  best 0.999  optimum at 18        71 s
+-- 50/52 campaigns done, 716 s elapsed
+  medium seed 48  best 1.000  optimum at 14        81 s
+  medium seed 49  best 0.973  not found            72 s
+-- 52/52 campaigns done, 728 s elapsed
+
+campaigns per set: {'easy': 50, 'medium': 50}
+-> /Users/amitlal/Documents/Claude/osi hackthon/deployments/alt-model/results/llm_crf_over_runs.csv
+
+LLM search (Azure OpenAI): mean CRF of injection n (share truncated, share infeasible)
+set                      inj 5                inj 10                inj 15                inj 20                inj 25
+easy     0.983 (  0% tr   0% inf) 0.975 (  0% tr   0% inf) 0.984 (  0% tr   0% inf) 0.990 (  0% tr   0% inf) 0.987 (  0% tr   0% inf)
+medium   0.869 (  0% tr   0% inf) 0.922 (  0% tr   0% inf) 0.935 (  0% tr   0% inf) 0.931 (  0% tr   0% inf) 0.944 (  0% tr   0% inf)
+
+LLM search (Azure OpenAI): mean best CRF after n injections (share of repeats within 1 % of the optimum)
+set                 @5           @10           @15           @20           @25
+easy      1.000 ( 98%)  1.000 (100%)  1.000 (100%)  1.000 (100%)  1.000 (100%)
+medium    0.922 (  4%)  0.958 ( 20%)  0.984 ( 68%)  0.992 ( 78%)  0.994 ( 80%)

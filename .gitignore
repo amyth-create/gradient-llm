@@ -22,3 +22,10 @@ HPLC Gradient Simulator — Spec.md
 # measured data kept out of the repo
 real data/
 organised data/
+
+# Local drafts, not for GitHub
+Abstract and Introduction.md
+
+# Presentations stay local, never on GitHub
+presentation/
+*.pptx

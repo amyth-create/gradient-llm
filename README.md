@@ -6,11 +6,13 @@ Bayesian optimisation on a deterministic HPLC gradient simulator. The simulator
 precomputed method tables (`tables/`), real-compound sets (`hplcsim/`) and the
 write-up (`HPLC Gradient Search Report.pdf`) all live in this repository.
 The LLM search needs an Azure OpenAI deployment: copy `.env.example` to `.env`
-and fill it in (never commit `.env`).
+and fill it in (never commit `.env`). To run the same search on a second
+deployment and compare models, see [deployments/README.md](deployments/README.md).
 
 **Start with the report.** [HPLC Gradient Search Report.pdf](HPLC%20Gradient%20Search%20Report.pdf)
 explains the problem, the simulator, the three search strategies and the results,
-with the figures from `results/` and `hplcsim/results/`. Read it first for an
+with the figures from `results/`, `hplcsim/results/` and, for the second-model
+comparison in its last section, `deployments/alt-model/results/`. Read it first for an
 understanding of the work; the rest of this README is the technical reference
 for running and extending the code.
 

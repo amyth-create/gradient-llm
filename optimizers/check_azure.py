@@ -2,6 +2,7 @@
 
     .venv/bin/python -m optimizers.check_azure            # reads <project>/.env
     .venv/bin/python -m optimizers.check_azure --env path/to/other.env
+    HPLC_ENV_FILE=deployments/<name>/.env .venv/bin/python -m optimizers.check_azure   # a second deployment
 
 Loads the AZURE_* settings, then makes two small calls against the deployment:
 a plain chat completion, and a structured-output (json_schema) completion of
@@ -28,6 +29,7 @@ from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 ENV_FILE = PROJECT_ROOT / ".env"
+ENV_FILE_VAR = "HPLC_ENV_FILE"
 DEFAULT_API_VERSION = "2024-10-21"
 REQUIRED = ("AZURE_ENDPOINT", "AZURE_DEPLOYMENT", "AZURE_API_KEY")
 
@@ -64,8 +66,17 @@ class Settings:
         return f"{self.endpoint}/openai/v1/"
 
 
-def load_settings(env_file: Path = ENV_FILE) -> Settings:
-    """Read the AZURE_* variables (the .env file never overrides a variable already exported)."""
+def default_env_file() -> Path:
+    """``$HPLC_ENV_FILE`` when it is set (a second deployment kept under ``deployments/``), else ``<project>/.env``."""
+    return Path(os.environ.get(ENV_FILE_VAR) or ENV_FILE).expanduser()
+
+
+def load_settings(env_file: Path | None = None) -> Settings:
+    """Read the AZURE_* variables from ``env_file`` (default ``default_env_file()``).
+
+    The .env file never overrides a variable already exported in the environment.
+    """
+    env_file = Path(env_file) if env_file is not None else default_env_file()
     load_dotenv(env_file, override=False)
     raw = {k: os.environ.get(k, "").strip().strip('"').strip("'")
            for k in (*REQUIRED, "AZURE_API_VERSION")}
@@ -234,7 +245,8 @@ def check(settings: Settings, verbose: bool = True) -> Report:
 
 def _main(argv=None) -> int:
     p = argparse.ArgumentParser(description="Check the Azure OpenAI deployment in .env.")
-    p.add_argument("--env", type=Path, default=ENV_FILE, help="env file to read (default: <project>/.env)")
+    p.add_argument("--env", type=Path, default=None,
+                   help="env file to read (default: $HPLC_ENV_FILE, else <project>/.env)")
     a = p.parse_args(argv)
     try:
         settings = load_settings(a.env)
