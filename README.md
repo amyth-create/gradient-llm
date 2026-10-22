@@ -8,6 +8,12 @@ write-up (`HPLC Gradient Search Report.pdf`) all live in this repository.
 The LLM search needs an Azure OpenAI deployment: copy `.env.example` to `.env`
 and fill it in (never commit `.env`).
 
+**Start with the report.** [HPLC Gradient Search Report.pdf](HPLC%20Gradient%20Search%20Report.pdf)
+explains the problem, the simulator, the three search strategies and the results,
+with the figures from `results/` and `hplcsim/results/`. Read it first for an
+understanding of the work; the rest of this README is the technical reference
+for running and extending the code.
+
 ## HPLC Gradient Simulator
 
 A deterministic function from one linear-gradient method to one retention table
