@@ -1,0 +1,67 @@
+0 finished campaigns loaded from /Users/amitlal/Documents/Claude/osi hackthon/ablations/prompts/no_score/gpt-6-astra/results/llm_transcripts, 50 to run
+  hard   seed  3  best 1.000  optimum at 5        133 s
+  hard   seed  1  best 1.000  optimum at 5        144 s
+  hard   seed  0  best 1.000  optimum at 6        152 s
+  hard   seed  2  best 1.000  optimum at 6        161 s
+  hard   seed  7  best 1.000  optimum at 6        116 s
+  hard   seed  4  best 1.000  optimum at 5        150 s
+  hard   seed  5  best 1.000  optimum at 7        139 s
+  hard   seed  6  best 1.000  optimum at 5        178 s
+  hard   seed  8  best 1.000  optimum at 6        142 s
+  hard   seed 10  best 1.000  optimum at 5        139 s
+-- 10/50 campaigns done, 422 s elapsed
+  hard   seed  9  best 1.000  optimum at 5        173 s
+  hard   seed 11  best 1.000  optimum at 6        147 s
+  hard   seed 12  best 1.000  optimum at 5        131 s
+  hard   seed 13  best 1.000  optimum at 5        142 s
+  hard   seed 15  best 1.000  optimum at 8        158 s
+  hard   seed 14  best 1.000  optimum at 7        184 s
+  hard   seed 17  best 1.000  optimum at 5        131 s
+  hard   seed 16  best 1.000  optimum at 5        175 s
+  hard   seed 18  best 1.000  optimum at 5        160 s
+  hard   seed 19  best 1.000  optimum at 4        163 s
+-- 20/50 campaigns done, 803 s elapsed
+  hard   seed 20  best 1.000  optimum at 7        184 s
+  hard   seed 21  best 1.000  optimum at 6        167 s
+  hard   seed 22  best 1.000  optimum at 5        124 s
+  hard   seed 23  best 1.000  optimum at 7        163 s
+  hard   seed 24  best 1.000  optimum at 5        158 s
+  hard   seed 25  best 1.000  optimum at 6        184 s
+  hard   seed 26  best 1.000  optimum at 7        166 s
+  hard   seed 27  best 1.000  optimum at 6        174 s
+  hard   seed 28  best 1.000  optimum at 5        125 s
+  hard   seed 30  best 1.000  optimum at 6        148 s
+-- 30/50 campaigns done, 1232 s elapsed
+  hard   seed 29  best 1.000  optimum at 6        179 s
+  hard   seed 31  best 1.000  optimum at 5        173 s
+  hard   seed 32  best 1.000  optimum at 4        167 s
+  hard   seed 33  best 1.000  optimum at 5        137 s
+  hard   seed 34  best 1.000  optimum at 5        156 s
+  hard   seed 35  best 1.000  optimum at 5        142 s
+  hard   seed 36  best 1.000  optimum at 5        154 s
+  hard   seed 37  best 1.000  optimum at 5        140 s
+  hard   seed 38  best 1.000  optimum at 5        144 s
+  hard   seed 39  best 1.000  optimum at 5        163 s
+-- 40/50 campaigns done, 1617 s elapsed
+  hard   seed 40  best 1.000  optimum at 5        156 s
+  hard   seed 41  best 1.000  optimum at 5        160 s
+  hard   seed 42  best 1.000  optimum at 6        138 s
+  hard   seed 43  best 1.000  optimum at 5        142 s
+  hard   seed 44  best 1.000  optimum at 5        164 s
+  hard   seed 46  best 1.000  optimum at 7        132 s
+  hard   seed 45  best 1.000  optimum at 7        167 s
+  hard   seed 47  best 1.000  optimum at 6        182 s
+  hard   seed 48  best 1.000  optimum at 4        162 s
+  hard   seed 49  best 1.000  optimum at 5        184 s
+-- 50/50 campaigns done, 2009 s elapsed
+
+campaigns per set: {'hard': 50}
+-> /Users/amitlal/Documents/Claude/osi hackthon/ablations/prompts/no_score/gpt-6-astra/results/llm_crf_over_runs.csv
+
+LLM search (Azure OpenAI): mean CRF of injection n (share truncated, share infeasible)
+set                      inj 5                inj 10                inj 15                inj 20                inj 25
+hard     0.976 (  0% tr   0% inf) 0.966 (  0% tr   0% inf) 0.965 (  0% tr   0% inf) 0.990 (  0% tr   0% inf) 1.000 (  0% tr   0% inf)
+
+LLM search (Azure OpenAI): mean best CRF after n injections (share of repeats within 1 % of the optimum)
+set                 @5           @10           @15           @20           @25
+hard      0.983 ( 60%)  1.000 (100%)  1.000 (100%)  1.000 (100%)  1.000 (100%)

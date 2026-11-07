@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>HPLC Gradient Search Report</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -62,6 +63,7 @@ figcaption { font-size: 13.5px; color: var(--fg-2); margin-top: 8px; max-width: 
 .panel h4 { margin: 0 0 6px; font-weight: 500; font-size: 14px; color: var(--fg); }
 .panel h4 small { color: var(--muted); font-weight: 400; margin-left: 6px; }
 svg { max-width: 100%; height: auto; display: block; }
+img { max-width: 100%; height: auto; }
 svg text { font-family: var(--font-body); font-size: 11px; fill: var(--fg-2); }
 svg .mono { font-family: var(--font-mono); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--fg-2); margin-top: 8px; }
@@ -103,7 +105,7 @@ details > div { padding: 0 14px 12px; }
   <div class="eyebrow">OSI hackathon · HPLC gradient simulator · search benchmark</div>
   <h1>Finding a separation method in 25 injections: random search, Bayesian optimisation and an LLM chemist on three simulated mixtures</h1>
   <p class="lede">Three synthetic analyte sets stand in for unknown mixtures. A deterministic simulator turns any linear-gradient method into a retention table and a chromatographic response function (CRF) score, pre-computed on a 22 080-method grid per set. Three optimisers query that table one injection at a time with a budget of 25. This report shows what the samples and tables contain, how the CRF landscape looks, how each search walks through it, and how often each of the three reaches the optimum over 50 repeated campaigns per set.</p>
-  <div class="meta"><span>date 2026-10-21</span><span>budget 25 injections</span><span>optimum CRF 1.000 on every set</span><span>found = within 1 % of the optimum</span><span>+ two real-compound sets in section 8</span><span>+ a second model in section 9</span></div>
+  <div class="meta"><span>date 2026-10-21</span><span>budget 25 injections</span><span>optimum CRF 1.000 on every set</span><span>found = within 1 % of the optimum</span><span>+ two real-compound sets in section 8</span><span>+ a second model in section 9</span><span>+ ablations in section 10</span><span>+ five prompts × two models in section 11</span><span>updated 2026-11-07</span></div>
   <div class="kpis" id="kpis"></div>
 </header>
 
@@ -681,6 +683,84 @@ Answer with JSON only:
 <h3>Reading the result</h3>
 <div class="prose" id="model-reading"></div>
 </section>
+
+<section id="ablations">
+<h2>10. Ablations: where the LLM search's advantage comes from</h2>
+<div class="prose">
+<p>Section 7 lists what the LLM search is told that BO is not: the scoring rule, linear-solvent-strength theory and a few rules of method-development practice, all in the system prompt. Three ablations, run after the main campaigns with the same model (<code>gpt-6-astra</code>), harness, grid and budget and 50 campaigns per set, measure how much of the result that information explains. The first deletes the retention-model section of the prompt (the 21 lines headed "Retention model" in section 7) and changes nothing else. The second starts every LLM campaign on the same eight seeded random injections that open BO's campaign of the same seed, so that the two searches diverge only in what they do with identical observations. The third applies the unchanged prompt and code to three mixtures generated afresh with seed 7 of the generator (easy7, medium7, hard7: 6, 8 and 10 analytes), made after the prompt was frozen, with random search and BO rerun on them for comparison.</p>
+</div>
+<div class="tbl"><table>
+<thead><tr><th>variant</th><th>set</th><th class="n">found optimum</th><th class="n">injections to optimum, median (IQR; max)</th><th class="n">found by 5 / 10 / 15</th><th class="n">truncated injections</th><th class="n">CRF of first injection</th></tr></thead>
+<tbody>
+<tr><td rowspan="3">LLM, full prompt (section 6)</td><td><span class="set-tag">easy</span></td><td class="n found">50 of 50</td><td class="n">1 (1–1; 1)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">1.000</td></tr>
+<tr><td><span class="set-tag">medium</span></td><td class="n found">50 of 50</td><td class="n">6 (5–6; 10)</td><td class="n">15 / 50 / 50</td><td class="n">0</td><td class="n">0.592</td></tr>
+<tr><td><span class="set-tag">hard</span></td><td class="n found">50 of 50</td><td class="n">4 (3–4; 5)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">0.931</td></tr>
+<tr><td rowspan="3">LLM, prompt without the retention model</td><td><span class="set-tag">easy</span></td><td class="n found">50 of 50</td><td class="n">1 (1–1; 1)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">1.000</td></tr>
+<tr><td><span class="set-tag">medium</span></td><td class="n found">50 of 50</td><td class="n">6 (5–8; 10)</td><td class="n">13 / 50 / 50</td><td class="n">0</td><td class="n">0.599</td></tr>
+<tr><td><span class="set-tag">hard</span></td><td class="n found">50 of 50</td><td class="n">4 (3–4; 6)</td><td class="n">48 / 50 / 50</td><td class="n">0</td><td class="n">0.934</td></tr>
+<tr><td rowspan="3">LLM, warm start on BO's 8 random rows<br><small style="color:var(--muted)">injection counts include the 8 random rows</small></td><td><span class="set-tag">easy</span></td><td class="n found">50 of 50</td><td class="n">9 (5–9; 9)</td><td class="n">14 / 50 / 50</td><td class="n">0 of its own</td><td class="n">0.997 (first own)</td></tr>
+<tr><td><span class="set-tag">medium</span></td><td class="n found">50 of 50</td><td class="n">11.5 (10–14; 18)</td><td class="n">1 / 17 / 41</td><td class="n">0 of its own</td><td class="n">0.929 (first own)</td></tr>
+<tr><td><span class="set-tag">hard</span></td><td class="n found">50 of 50</td><td class="n">10 (10–11; 15)</td><td class="n">1 / 28 / 50</td><td class="n">0 of its own</td><td class="n">0.944 (first own)</td></tr>
+<tr><td rowspan="3">BO, the same 8 random rows (section 6)</td><td><span class="set-tag">easy</span></td><td class="n">49 of 50</td><td class="n">9 (5–13; 23)</td><td class="n">14 / 31 / 43</td><td class="n">6.4 %</td><td class="n">0.355</td></tr>
+<tr><td><span class="set-tag">medium</span></td><td class="n">42 of 50</td><td class="n">15 (11–19; 25)</td><td class="n">1 / 10 / 24</td><td class="n">2.5 %</td><td class="n">0.601</td></tr>
+<tr><td><span class="set-tag">hard</span></td><td class="n">20 of 50</td><td class="n">14 (10–17; 25)</td><td class="n">1 / 6 / 13</td><td class="n">7.1 %</td><td class="n">0.292</td></tr>
+<tr><td rowspan="3">LLM, fresh family (seed 7)</td><td><span class="set-tag">easy7</span></td><td class="n found">50 of 50</td><td class="n">1 (1–1; 1)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">1.000</td></tr>
+<tr><td><span class="set-tag">medium7</span></td><td class="n found">50 of 50</td><td class="n">2 (2–3; 3)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">0.929</td></tr>
+<tr><td><span class="set-tag">hard7</span></td><td class="n found">50 of 50</td><td class="n">6 (5–6; 7)</td><td class="n">22 / 50 / 50</td><td class="n">0</td><td class="n">0.843</td></tr>
+<tr><td rowspan="3">BO, fresh family</td><td><span class="set-tag">easy7</span></td><td class="n">48 of 50</td><td class="n">4 (2–8; 23)</td><td class="n">29 / 44 / 45</td><td class="n">2.9 %</td><td class="n">0.629</td></tr>
+<tr><td><span class="set-tag">medium7</span></td><td class="n">30 of 50</td><td class="n">17.5 (12–20; 25)</td><td class="n">2 / 7 / 13</td><td class="n">6.0 %</td><td class="n">0.408</td></tr>
+<tr><td><span class="set-tag">hard7</span></td><td class="n">45 of 50</td><td class="n">16 (14–20; 25)</td><td class="n">1 / 3 / 21</td><td class="n">7.0 %</td><td class="n">0.278</td></tr>
+<tr><td rowspan="3">Random search, fresh family</td><td><span class="set-tag">easy7</span></td><td class="n">49 of 50</td><td class="n">4 (2–8; 22)</td><td class="n">29 / 38 / 42</td><td class="n">6.0 %</td><td class="n">0.629</td></tr>
+<tr><td><span class="set-tag">medium7</span></td><td class="n">8 of 50</td><td class="n">9.5 (8–18; 21)</td><td class="n">2 / 5 / 5</td><td class="n">12.9 %</td><td class="n">0.408</td></tr>
+<tr><td><span class="set-tag">hard7</span></td><td class="n">6 of 50</td><td class="n">10 (8–16; 18)</td><td class="n">1 / 3 / 4</td><td class="n">15.6 %</td><td class="n">0.278</td></tr>
+<tr><td colspan="7" style="color:var(--fg-2);font-size:13px">50 campaigns of 25 injections per row. "Found" is a best CRF within 1 % of the optimum; the injection statistics are over the campaigns that found it. For the warm start, injections 1 to 8 are the random rows BO draws for the same seed, so the counts include them; those 8 rows contained 137 truncated runs across the three sets, and the LLM's own 17 injections none. The fresh sets: medium7 and hard7 have 118 and 112 grid rows within 1 % of the optimum (against 500 and 82 for medium and hard); easy7 has 2 929, 13 % of the grid.</td></tr>
+</tbody></table></div>
+
+<h3>Without the retention model: nothing changes</h3>
+<div class="prose"><p>Deleting the 21 lines of LSS theory from the prompt changed nothing measurable. All 150 campaigns reached the optimum after the same medians (1, 6 and 4 injections), the same first-injection CRF (1.000, 0.599 and 0.934 against 1.000, 0.592 and 0.931), no truncated method and no repeated proposal. The rationales read the same: in both variants the model writes about slope in about a third of its rationales (31 % against 37 %), temperature in about 40 % and selectivity in about a quarter, and in neither does it ever cite log k, S or the LSS equation. The retention theory the search uses is the model's own, not the prompt's. What the prompt supplied and was not ablated here is the scoring rule, the bounds and the instruction to spend early injections on information; section 11 takes those apart.</p></div>
+
+<h3>From BO's eight rows: the LLM still gets there</h3>
+<div class="prose"><p>Given the same eight random injections that open BO's campaign, the LLM reached the optimum in every campaign after a median of 1, 3.5 and 2 further injections of its own (at most 2, 10 and 7), where BO from the same rows reached it in 49, 42 and 20 campaigns after a median of 9, 15 and 14 injections in all. Counting all 25, the warm-started LLM needed 9, 11.5 and 10, more than from a cold start (1, 6 and 4), because eight random rows are worse than its own scouting gradient: they contained the optimum in only 19, 5 and 3 campaigns of 50 and included 137 truncated runs, which the LLM never proposes. The rows were not wasted on it, though. Its first own proposal after reading them scored 0.997, 0.929 and 0.944, against 1.000, 0.592 and 0.931 from a cold start, and on the medium and hard sets it then needed about two fewer injections of its own. The same eight observations carry BO to the optimum in 40 % of hard-set campaigns and the LLM in all of them.</p></div>
+
+<h3>On three fresh mixtures: the result reproduces</h3>
+<figure>
+  <img src="ablations/fresh_crf_over_runs.png" alt="Three panels, one per fresh set (easy7, medium7, hard7): mean CRF of injection n and mean best CRF so far for random search, Bayesian optimisation and the LLM search over 50 campaigns. The LLM curve sits at 1.0 from the first few injections on every set; BO rises after injection 8; random search stays low." loading="lazy">
+  <figcaption>The fresh family: mean CRF of each injection (dots, with the 95 % band) and mean best CRF so far (dashed) over 50 campaigns per search and set, on the same axes as the section 6 figure. Random search and BO share injections 1 to 8. File: <code>ablations/fresh/results/crf_over_runs.png</code>.</figcaption>
+</figure>
+<div class="prose"><p>Nothing in the prompt, code or grid was changed between the original family and this one, and the three sets were generated after the prompt was frozen. The ranking and the margins reproduce: the LLM reached the optimum in all 150 campaigns after a median of 1, 2 and 6 injections; BO in 48, 30 and 45 after 4, 17.5 and 16; random search in 49, 8 and 6. So the result on easy, medium and hard is not a property of those three mixtures. The order of difficulty is also not the one BO sees: medium7, where BO found the optimum in 30 campaigns of 50, took the LLM two injections, while hard7, where BO found it in 45, took six. The hard7 optimum starts the gradient at φ<sub>0</sub> ≈ 0.13 rather than at the lower bound of the grid, and the LLM's full-window first injection scored only 0.84 there against 0.93 on medium7. Across the 450 ablation campaigns and the 150 of section 6 the LLM search has still not run a truncated method.</p></div>
+<div class="note">The ablations settle two of the three questions section 7 raised. The advantage is not an artefact of the prompt's theory, since the theory can be deleted and BO's start imposed without changing the outcome, and it is not memorisation of three mixtures. What they leave open is the comparison with retention modelling (a two-gradient LSS fit as a fourth baseline), which no ablation of the LLM can answer, and the step from a noise-free simulator to an instrument. Files: <code>ablations/no_theory/</code>, <code>ablations/warm_start/</code>, <code>ablations/fresh/</code>; summarise with <code>python ablations/summary.py</code>.</div>
+</section>
+
+<section id="prompts">
+<h2>11. Prompt variants on the hard set, with both models</h2>
+<div class="prose">
+<p>Section 10 removed one section of the prompt with one model. To see how much of the prompt the search needs, and whether the answer depends on the model, five nested versions were run on the hard set with <code>gpt-6-astra</code> and with <code>gpt-5.4</code> (section 9), 50 campaigns each: the full prompt of section 7; without the retention-model section, as in section 10; without the four procedural rules under "How to work" (one grid method per injection and no repeats, early injections buy information, resolve every pair then trade time, avoid truncation), with the theory kept; without the CRF formula, which is replaced by "higher is better" (the procedural rule that restates it is removed with it); and a minimal prompt that keeps only the instrument, the method bounds, the format of a run and the answer format. Each variant is generated from the full prompt by deleting or replacing whole sections (<code>ablations/prompts/make_variants.py</code>), so the files differ only where stated. In every variant the model still receives the CRF and its two terms after each injection, and the harness still refuses a repeated method without charging it.</p>
+</div>
+<div class="tbl"><table>
+<thead><tr><th>model</th><th>prompt</th><th class="n">found optimum</th><th class="n">injections to optimum, median (IQR; max)</th><th class="n">found by 5 / 10 / 15</th><th class="n">CRF of first injection</th><th>opening method (campaigns)</th><th class="n">re-asks per campaign</th></tr></thead>
+<tbody>
+<tr><td rowspan="5"><span class="kpi sw" style="background:var(--s-llm);padding:0;border:0"></span>gpt-6-astra</td><td>full</td><td class="n found">50 of 50</td><td class="n">4 (3–4; 5)</td><td class="n">50 / 50 / 50</td><td class="n">0.931</td><td>0.05 → 0.95 / 10 min / 40 °C (31)</td><td class="n">0.00</td></tr>
+<tr><td>without retention model</td><td class="n found">50 of 50</td><td class="n">4 (3–4; 6)</td><td class="n">48 / 50 / 50</td><td class="n">0.934</td><td>0.05 → 0.95 / 10 min / 40 °C (16)</td><td class="n">0.00</td></tr>
+<tr><td>without procedural rules</td><td class="n found">50 of 50</td><td class="n">3 (3–4; 4)</td><td class="n">50 / 50 / 50</td><td class="n">0.930</td><td>0.05 → 0.95 / 10 min / 40 °C (32)</td><td class="n">1.00</td></tr>
+<tr><td>without the CRF formula</td><td class="n found">50 of 50</td><td class="n">5 (5–6; 8)</td><td class="n">30 / 50 / 50</td><td class="n">0.868</td><td>0.05 → 0.95 / 20 min / 40 °C (50)</td><td class="n">0.04</td></tr>
+<tr><td>minimal</td><td class="n found">50 of 50</td><td class="n">5 (4–6; 9)</td><td class="n">33 / 50 / 50</td><td class="n">0.866</td><td>0.05 → 0.95 / 20 min / 40 °C (47)</td><td class="n">1.02</td></tr>
+<tr><td rowspan="5"><span class="kpi sw" style="background:var(--s-llm2);padding:0;border:0"></span>gpt-5.4</td><td>full</td><td class="n found">50 of 50</td><td class="n">10.5 (7–13; 21)</td><td class="n">8 / 25 / 44</td><td class="n">0.854</td><td>0.05 → 0.95 / 20 min / 40 °C (49)</td><td class="n">0.28</td></tr>
+<tr><td>without retention model</td><td class="n">47 of 50</td><td class="n">9 (6–11; 14)</td><td class="n">9 / 32 / 47</td><td class="n">0.826</td><td>0.05 → 0.95 / 20 min / 40 °C (39)</td><td class="n">0.26</td></tr>
+<tr><td>without procedural rules</td><td class="n">40 of 50</td><td class="n">10 (7–14; 23)</td><td class="n">7 / 22 / 34</td><td class="n">0.854</td><td>0.05 → 0.95 / 20 min / 40 °C (49)</td><td class="n">1.48</td></tr>
+<tr><td>without the CRF formula</td><td class="n found">50 of 50</td><td class="n">14 (13–15; 22)</td><td class="n">2 / 4 / 38</td><td class="n">0.868</td><td>0.05 → 0.95 / 20 min / 40 °C (50)</td><td class="n">0.38</td></tr>
+<tr><td>minimal</td><td class="n found">50 of 50</td><td class="n">8 (4–10; 14)</td><td class="n">18 / 40 / 50</td><td class="n">0.867</td><td>0.05 → 0.95 / 20 min / 40 °C (28)</td><td class="n">1.26</td></tr>
+<tr><td colspan="8" style="color:var(--fg-2);font-size:13px">Hard set, 50 campaigns of 25 injections per row. The opening method is the most common first injection with the number of campaigns that used it. Re-asks are proposals of an already-run method, refused by the harness and asked again without charge. No variant ran a truncated method with gpt-6-astra; gpt-5.4 ran one or two in 1 250 injections with the full and the no-theory prompt.</td></tr>
+</tbody></table></div>
+<figure>
+  <img src="ablations/prompt_study.png" alt="Two panels, gpt-6-astra and gpt-5.4: mean best CRF so far against injection for the five prompt variants on the hard set. With gpt-6-astra all five curves reach 1.0 by injection 10; with gpt-5.4 they spread between 0.98 and 1.0 and the minimal prompt is the highest." loading="lazy">
+  <figcaption>Mean best CRF so far against injection for the five prompt variants on the hard set, 50 campaigns each, with gpt-6-astra (left) and gpt-5.4 (right). The legend gives the campaigns that reached the optimum. File: <code>ablations/prompts/prompt_study.png</code>.</figcaption>
+</figure>
+<h3>gpt-6-astra: the prompt changes where the search starts, not where it ends</h3>
+<div class="prose"><p>Every prompt reached the optimum in 50 of 50 campaigns, after a median of 4, 4, 3, 5 and 5 injections and never more than 9. Told the formula, the model opens with a 10 min full-window scouting gradient in 31 of 50 campaigns and a first-injection CRF of 0.93; without the formula it opens with a 20 min gradient in 47 to 50 campaigns (0.87), reads from the returned time term that the last peak costs, and shortens t<sub>G</sub> from its second injection. The cost is one injection in the median and a drop from 50 to about 30 campaigns at the optimum by injection 5; by injection 10 all five variants are at 50. Removing the procedural rules removes the instruction not to repeat a method, and the model then proposed an already-run method about once per campaign (1.0 re-asks per campaign against 0 with the rules). The harness refuses such a proposal and asks again for free; without that rule in the harness, the no-rules and minimal prompts would have spent about one injection per campaign on repeats.</p></div>
+<h3>gpt-5.4: the same in kind, noisier in degree</h3>
+<div class="prose"><p>The full prompt, the prompt without theory and the prompt without the formula reached the optimum in 50, 47 and 50 campaigns after a median of 10.5, 9 and 14 injections. The minimal prompt was its fastest at 8 (interquartile range 4 to 10, at most 14; Mann–Whitney against the full prompt, p &lt; 0.001), and the prompt without procedural rules its slowest, at the optimum in 40 campaigns of 50 (Fisher's exact test against 50 of 50, p &lt; 0.001), with the other ten ending at a best CRF of 0.965 to 0.99, one grid step short. gpt-5.4 also re-proposed run methods more often without the rule (1.3 to 1.5 re-asks per campaign against 0.3 with it). The order of the variants is not the same for the two models, and the spread between prompts on gpt-5.4 (medians 8 to 14) is smaller than the spread between the models on the same prompt (4 against 10.5).</p></div>
+<div class="note">Two things follow. None of the domain content in the prompt, whether retention theory, procedure or the scoring formula, is needed by either model to reach the optimum of the hard set within the budget: what the formula buys is a short opening gradient, worth one or two injections at the start, and what the procedural rules buy is the no-repeat discipline the harness enforces anyway. And the prompt is a second-order effect next to the model: the same five prompts span one injection of median with gpt-6-astra and six with gpt-5.4, and no prompt brings gpt-5.4 to gpt-6-astra's count. The study is confined to the hard set, and 50 campaigns resolve differences of about ten in the found count and about two injections in the median; smaller effects are within noise. Files: <code>ablations/prompts/&lt;variant&gt;/&lt;model&gt;/</code>; summarise with <code>python ablations/prompts/prompt_summary.py</code>.</div>
+</section>
 </div>
 
 <script>
@@ -1232,3 +1312,4 @@ try {
   new MutationObserver(drawAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 } catch (e) {}
 </script>
+

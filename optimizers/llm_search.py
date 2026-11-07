@@ -207,8 +207,17 @@ def llm_search(oracle: TableOracle, budget: int = 25, seed: int = 0, n_init: int
     run = oracle.new_run("llm", seed, budget)
     new: list[tuple[int, int, dict | None]] = []
     for idx in random_order(oracle, seed)[:min(n_init, budget)]:
-        oracle.query(run, int(idx))
+        obs = oracle.query(run, int(idx))
         new.append((len(run), int(idx), None))
+        if transcript is not None:
+            transcript.append({
+                "set": oracle.set_name, "seed": seed, "injection": obs.run, "index": int(idx),
+                "proposal": {f: float(oracle.X[int(idx), i]) for i, f in enumerate(FIELDS)}, "rationale": "warm start",
+                "run_as": {f: float(oracle.X[int(idx), i]) for i, f in enumerate(FIELDS)}, "warm_start": True,
+                "crf": obs.crf, "n_missing": obs.n_missing, "best": obs.best, "regret": obs.regret,
+                "repeat_attempts": 0, "parse_errors": 0, "latency_s": 0.0,
+                "usage": {"prompt_tokens": 0, "completion_tokens": 0},
+            })
     messages = [{"role": "system", "content": load_prompt(prompt_path)},
                 {"role": "user", "content": renderer.turn(run, new)}]
 

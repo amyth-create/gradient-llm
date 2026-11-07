@@ -3,8 +3,10 @@
     .venv/bin/python -m optimizers.llm_repeats --repeats 50 --workers 6
     .venv/bin/python -m optimizers.llm_repeats --sets hard --repeats 50 --summary-only   # no API calls, just the tables and figure
 
-Each campaign is one ``llm_search`` with ``n_init=0`` (the seed only labels the
-repeat; proposals are nondeterministic). A finished campaign is persisted as
+Each campaign is one ``llm_search`` with ``n_init=0`` by default (the seed only labels the
+repeat; proposals are nondeterministic); ``--n-init 8`` warm-starts every campaign on the
+rows random search and BO draw for that seed, and ``--prompt`` swaps the system prompt
+(ablations). Point ``$HPLC_RESULTS_DIR`` at a folder of its own for each variant. A finished campaign is persisted as
 ``results/llm_transcripts/<set>_seed<k>.jsonl``; on the next invocation any
 seed whose transcript already holds ``budget`` injections is loaded from disk
 instead of re-run, so the batch can be interrupted and resumed. A campaign that
@@ -67,12 +69,15 @@ def load_run(oracle: TableOracle, seed: int, budget: int) -> SearchRun | None:
     return run
 
 
-def run_campaign(oracle: TableOracle, seed: int, budget: int, client, model: str, attempts: int) -> SearchRun | None:
+def run_campaign(oracle: TableOracle, seed: int, budget: int, client, model: str, attempts: int,
+                 n_init: int = 0, prompt_path: str | Path | None = None) -> SearchRun | None:
     for attempt in range(1, attempts + 1):
         transcript: list[dict] = []
         t = time.perf_counter()
         try:
-            run = llm_search(oracle, budget=budget, seed=seed, n_init=0, client=client, model=model, transcript=transcript)
+            kw = {"prompt_path": prompt_path} if prompt_path else {}
+            run = llm_search(oracle, budget=budget, seed=seed, n_init=n_init, client=client, model=model,
+                             transcript=transcript, **kw)
         except Exception as e:  # noqa: BLE001 - any API or parsing failure: report, back off, retry
             _say(f"  {oracle.set_name:6s} seed {seed:2d}  attempt {attempt}/{attempts} failed after "
                  f"{len(transcript)} injections: {type(e).__name__}: {str(e)[:160]}")
@@ -88,7 +93,7 @@ def run_campaign(oracle: TableOracle, seed: int, budget: int, client, model: str
 
 
 def collect(sets: tuple[str, ...], repeats: int, budget: int, workers: int, attempts: int,
-            summary_only: bool) -> dict[str, list[SearchRun]]:
+            summary_only: bool, n_init: int = 0, prompt_path: str | Path | None = None) -> dict[str, list[SearchRun]]:
     oracles = {s: TableOracle(s) for s in sets}
     runs: dict[str, dict[int, SearchRun]] = {s: {} for s in sets}
     todo: list[tuple[str, int]] = []
@@ -107,7 +112,8 @@ def collect(sets: tuple[str, ...], repeats: int, budget: int, workers: int, atte
         client = make_client(settings, max_retries=5, timeout=180.0)
         t0 = time.perf_counter()
         with ThreadPoolExecutor(max_workers=workers) as pool:
-            futures = {pool.submit(run_campaign, oracles[s], seed, budget, client, settings.deployment, attempts): (s, seed)
+            futures = {pool.submit(run_campaign, oracles[s], seed, budget, client, settings.deployment, attempts,
+                                   n_init, prompt_path): (s, seed)
                        for s, seed in todo}
             done = 0
             for fut in as_completed(futures):
@@ -130,10 +136,12 @@ def _main(argv=None) -> int:
     p.add_argument("--attempts", type=int, default=3, help="tries per campaign before giving up on it")
     p.add_argument("--summary-only", action="store_true", help="no API calls: summarise the transcripts on disk")
     p.add_argument("--figure", action="store_true", help="also rerun random search and BO and write the three-method figure")
+    p.add_argument("--n-init", type=int, default=0, help="warm-start injections: the rows random search and BO draw for that seed")
+    p.add_argument("--prompt", type=Path, default=None, help="system prompt file (default: optimizers/llm_system_prompt.txt)")
     a = p.parse_args(argv)
     sets = tuple(a.sets)
 
-    llm_runs = collect(sets, a.repeats, a.budget, a.workers, a.attempts, a.summary_only)
+    llm_runs = collect(sets, a.repeats, a.budget, a.workers, a.attempts, a.summary_only, a.n_init, a.prompt)
     n = {s: len(r) for s, r in llm_runs.items()}
     _say(f"\ncampaigns per set: {n}")
     if any(v == 0 for v in n.values()):

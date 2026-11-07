@@ -24,7 +24,7 @@ ANALYTE_DIR = CONFIG_DIR / "analytes"
 # an analyte set is found by name wherever its YAML lives and its optimum, table and
 # results stay next to it.
 PROJECT_ROOT = CONFIG_DIR.parent
-EXTRA_ROOTS: tuple[Path, ...] = (PROJECT_ROOT / "hplcsim",)
+EXTRA_ROOTS: tuple[Path, ...] = (PROJECT_ROOT / "hplcsim", PROJECT_ROOT / "ablations" / "fresh")
 ROOTS: tuple[Path, ...] = (PROJECT_ROOT, *EXTRA_ROOTS)
 
 

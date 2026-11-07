@@ -1,0 +1,11 @@
+variant,method,set,campaigns,mean_best_25,sd_best_25,found,median_inj,q1_inj,q3_inj,max_inj,found_5,found_10,found_15,truncated_share,mean_crf,first_crf,model,prompt,repeats_per_campaign,parse_errors,prompt_tokens_per_campaign,completion_tokens_per_call,latency_s,opening
+gpt-6-astra/full,llm,hard,50,1.0,0.0,50,4.0,3.0,4.0,5.0,50,50,50,0.0,0.96,0.931,gpt-6-astra,full,0.0,0,295053,265,9.3,0.05-0.95/10min/40C x31
+gpt-6-astra/no_theory,llm,hard,50,1.0,0.0,50,4.0,3.0,4.0,6.0,48,50,50,0.0,0.955,0.934,gpt-6-astra,no_theory,0.0,0,286075,276,8.8,0.05-0.95/10min/40C x16
+gpt-6-astra/no_howto,llm,hard,50,1.0,0.0,50,3.0,3.0,4.0,4.0,50,50,50,0.0,0.961,0.93,gpt-6-astra,no_howto,1.0,0,291728,240,7.5,0.05-0.95/10min/40C x32
+gpt-6-astra/no_score,llm,hard,50,1.0,0.0,50,5.0,5.0,6.0,8.0,30,50,50,0.0,0.966,0.868,gpt-6-astra,no_score,0.04,0,288582,194,6.2,0.05-0.95/20min/40C x50
+gpt-6-astra/minimal,llm,hard,50,1.0,0.0,50,5.0,4.0,6.0,9.0,33,50,50,0.0,0.966,0.866,gpt-6-astra,minimal,1.02,0,278116,174,5.7,0.05-0.95/20min/40C x47
+gpt-5.4/full,llm,hard,50,1.0,0.0,50,10.5,7.0,12.75,21.0,8,25,44,0.002,0.942,0.854,gpt-5.4,full,0.28,0,300295,102,3.0,0.05-0.95/20min/40C x49
+gpt-5.4/no_theory,llm,hard,50,0.999,0.004,47,9.0,6.5,11.0,14.0,9,32,47,0.001,0.943,0.826,gpt-5.4,no_theory,0.26,0,289819,99,2.8,0.05-0.95/20min/40C x39
+gpt-5.4/no_howto,llm,hard,50,0.996,0.008,40,10.0,6.75,14.0,23.0,7,22,34,0.002,0.934,0.854,gpt-5.4,no_howto,1.48,0,299788,106,2.9,0.05-0.95/20min/40C x49
+gpt-5.4/no_score,llm,hard,50,1.0,0.0,50,14.0,13.0,15.0,22.0,2,4,38,0.0,0.936,0.868,gpt-5.4,no_score,0.38,0,294484,98,2.8,0.05-0.95/20min/40C x50
+gpt-5.4/minimal,llm,hard,50,1.0,0.0,50,8.0,4.0,10.0,14.0,18,40,50,0.0,0.95,0.867,gpt-5.4,minimal,1.26,0,281971,96,2.7,0.05-0.95/20min/40C x28
