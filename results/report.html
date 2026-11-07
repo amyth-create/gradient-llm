@@ -104,8 +104,8 @@ details > div { padding: 0 14px 12px; }
 <header>
   <div class="eyebrow">OSI hackathon · HPLC gradient simulator · search benchmark</div>
   <h1>Finding a separation method in 25 injections: random search, Bayesian optimisation and an LLM chemist on three simulated mixtures</h1>
-  <p class="lede">Three synthetic analyte sets stand in for unknown mixtures. A deterministic simulator turns any linear-gradient method into a retention table and a chromatographic response function (CRF) score, pre-computed on a 22 080-method grid per set. Three optimisers query that table one injection at a time with a budget of 25. This report shows what the samples and tables contain, how the CRF landscape looks, how each search walks through it, and how often each of the three reaches the optimum over 50 repeated campaigns per set.</p>
-  <div class="meta"><span>date 2026-10-21</span><span>budget 25 injections</span><span>optimum CRF 1.000 on every set</span><span>found = within 1 % of the optimum</span><span>+ two real-compound sets in section 8</span><span>+ a second model in section 9</span><span>+ ablations in section 10</span><span>+ five prompts × two models in section 11</span><span>updated 2026-11-07</span></div>
+  <p class="lede">Three synthetic analyte sets stand in for unknown mixtures. A deterministic simulator turns any linear-gradient method into a retention table and a chromatographic response function (CRF) score, pre-computed on a 22 080-method grid per set. Three optimisers query that table one injection at a time with a budget of 25. This report shows what the samples and tables contain, how the CRF landscape looks, what happens when all three searches start from the same eight observations, how each search walks through the landscape from a cold start, and how often each of the three reaches the optimum over 50 repeated campaigns per set.</p>
+  <div class="meta"><span>date 2026-10-21</span><span>budget 25 injections</span><span>optimum CRF 1.000 on every set</span><span>found = within 1 % of the optimum</span><span>warm start on BO's 8 rows in section 6</span><span>+ two real-compound sets in section 9</span><span>+ the prompt taken apart in section 10</span><span>+ a second model in section 11</span><span>+ three fresh mixtures in section 12</span><span>updated 2026-11-07</span></div>
   <div class="kpis" id="kpis"></div>
 </header>
 
@@ -201,14 +201,12 @@ details > div { padding: 0 14px 12px; }
 </div>
 
 <h3>A worked example: one method through the simulator</h3>
-<div class="prose"><p>The hard set at the LLM search's best method from section 6 (φ 0.05 → 0.80 over 10 min at 55 °C), with the intermediate quantities an operator never sees. Rows are in elution order; the analyte number refers to the config. All ten elute inside the gradient (regime 2), the two members of each near pair sit next to each other, and the late analyte 10 arrives last at 7.6 min, inside the 10 min window.</p></div>
+<div class="prose"><p>The hard set at the LLM search's best method from section 8 (φ 0.05 → 0.80 over 10 min at 55 °C), with the intermediate quantities an operator never sees. Rows are in elution order; the analyte number refers to the config. All ten elute inside the gradient (regime 2), the two members of each near pair sit next to each other, and the late analyte 10 arrives last at 7.6 min, inside the 10 min window.</p></div>
 <div class="tbl mono" id="worked-table"></div>
 
 <h3>Step 3 · The table and the reference optimum</h3>
 <div class="prose"><p>The table is the simulator evaluated on every in-bounds point of a round-number grid (φ in steps of 0.05, t<sub>G</sub> in steps of 2 min, T in steps of 5 °C), which is what the next section lists column by column. The reference optimum is found off-grid: a 30 × 30 × 30 × 8 grid over (φ<sub>0</sub>, Δφ, t<sub>G</sub>, T), 216 000 points evaluated in batch, then Nelder-Mead from the best point. A search is scored against that CRF, and "found" means within 1 % of it. On all three sets the optimum is 1.0, and the best grid row also reaches 1.0, so the discrete table loses nothing at the top.</p></div>
 </section>
-
-
 <section>
 <h2>3. What is in the simulated table</h2>
 <div class="prose">
@@ -238,7 +236,6 @@ details > div { padding: 0 14px 12px; }
 </figure>
 <div class="tbl" id="table-stats"></div>
 </section>
-
 <section>
 <h2>4. CRF landscape of the simulated tables</h2>
 <div class="prose">
@@ -254,9 +251,8 @@ details > div { padding: 0 14px 12px; }
 <div class="prose"><p>Extent of the region of grid methods with CRF ≥ 0.99 in each variable, and how its rows are spread over temperature. Easy is a broad plateau at short gradients; medium is cold (25 to 35 °C) and tolerant of any gradient length; hard is a thin ridge that needs a low φ<sub>0</sub>, a 6 to 20 min gradient and one of two temperatures.</p></div>
 <div class="tbl" id="region-table"></div>
 </section>
-
-<section>
-<h2>5. How each search navigates the landscape</h2>
+<section id="searches">
+<h2>5. The three searches and the LLM harness</h2>
 <div class="prose">
 <p>All three optimisers share one contract: a <code>TableOracle</code> over the set's table, a budget of 25, one row per query, a row never charged twice, regret measured against the stored optimum. Random search draws a seeded permutation of the rows. Bayesian optimisation (BO) uses the same first eight random rows, then fits a Gaussian process (ARD Matérn-5/2, hyperparameters refit each step) and picks the unqueried row with the highest expected improvement. The LLM search starts from a blank page: an Azure OpenAI deployment (<code>gpt-6-astra</code>) reads the retention table of every injection so far and proposes the next method as JSON, which the harness snaps to the grid.</p>
 </div>
@@ -267,59 +263,7 @@ details > div { padding: 0 14px 12px; }
 <tr><td><span class="kpi sw" style="background:var(--s-bo);padding:0;border:0"></span>Bayesian optimisation</td><td>only the CRF of each row it has run; the retention table is not used</td><td>fits a Gaussian process (ARD Matérn-5/2, hyperparameters refit each step, lognormal prior on lengthscales) on the unit cube and takes the unqueried row with the highest expected improvement</td><td>the same random rows as random search for that seed</td><td>about 10 s of CPU</td></tr>
 <tr><td><span class="kpi sw" style="background:var(--s-llm);padding:0;border:0"></span>LLM search</td><td>the full retention table of every injection with pairwise resolution, the CRF and its terms, plus the instrument, grid, scoring rule and LSS theory in its prompt</td><td>proposes one method as JSON with a rationale; the harness snaps it to the nearest grid row and refuses repeats</td><td>its own: a broad scouting gradient, then one-step changes</td><td>25 API calls, about 290 000 prompt tokens, 3 to 5 min</td></tr>
 </tbody></table></div>
-<div class="prose">
-<p>The figures below show seed 0 of each method on each set: the CRF of every injection as a dot, the best CRF so far as a step line. A truncated run (peaks still on the column at 42 min) is a red triangle at its observed score; it is an ordinary poor injection, not a failure.</p>
-</div>
-<figure>
-  <div class="panels" id="search-panels"></div>
-  <div class="legend"><span class="ln" style="--c:var(--s-random)">Random search</span><span class="ln" style="--c:var(--s-bo)">Bayesian optimisation (GP-EI)</span><span class="ln" style="--c:var(--s-llm)">LLM search</span><span class="tri">truncated run, at its observed CRF</span><span class="dash" style="--c:var(--fg-2)">known optimum 1.0</span></div>
-  <figcaption>Seed 0, 25 injections. Random search and BO share injections 1 to 8. The LLM search reaches the optimum at injection 1 (easy), 5 (medium) and 4 (hard) and stays there; BO reaches it at injection 9 on easy and gets to 0.976 on hard; random search stalls at 0.990, 0.887 and 0.881.</figcaption>
-</figure>
-
-<h3>Where each search walked</h3>
-<div class="prose"><p>The same seed-0 campaigns drawn on the φ<sub>1</sub> × t<sub>G</sub> panel of the landscape (best CRF over φ<sub>0</sub> and T). Markers are injections numbered in order and joined in sequence; the ringed marker is the best injection. Random search scatters over the whole box; BO homes in on the dark band after its eight random starts; the LLM search begins with a broad scouting gradient and then moves one grid step at a time along the ridge.</p></div>
-<div id="walks"></div>
-<div class="legend"><span class="ln" style="--c:var(--s-random)">Random search</span><span class="ln" style="--c:var(--s-bo)">Bayesian optimisation</span><span class="ln" style="--c:var(--s-llm)">LLM search</span><span class="star">stored optimum</span></div>
-<h3>The hard set in all six projections</h3>
-<div class="prose"><p>The same three seed-0 campaigns on the hard set, drawn on every pairwise panel of the landscape. The T column is where the methods differ most: random search and BO's first eight injections spread over every temperature, BO's later injections cluster at 35 to 45 °C around its best point, and the LLM search moves to 55 °C at injection 7 and stays there for all but three of the remaining injections.</p></div>
-<div id="hard-corner"></div>
-<h3>Navigation statistics over 50 campaigns</h3>
-<div class="prose"><p>How far each search moves between consecutive injections (Euclidean distance in the unit cube, where the box diagonal is 2.0), how much of its budget it spends at or near the optimum, how often it runs a truncated method, and its mean injection score before and after injection 8, which is where BO's surrogate takes over.</p></div>
-<div class="tbl" id="nav-table"></div>
-<figure>
-  <div class="panels" id="dist-panels"></div>
-  <div class="legend"><span class="ln" style="--c:var(--s-random)">Random search</span><span class="ln" style="--c:var(--s-bo)">Bayesian optimisation</span><span class="ln" style="--c:var(--s-llm)">LLM search</span></div>
-  <figcaption>Mean distance from injection n to the nearest grid method with CRF ≥ 0.99, in unit-cube units, averaged over 50 campaigns. Zero means the injection itself was optimal. Random search stays at the distance of a random draw; BO's distance falls once the surrogate takes over; the LLM search is near the ridge from its first injection and walks along it.</figcaption>
-</figure>
-
-<h3>The LLM search, injection by injection</h3>
-<div class="prose"><p>Every proposal the model made on seed 0, with the rationale it returned alongside the JSON. The hard set is expanded; the others fold.</p></div>
-<div id="llm-logs"></div>
-
-
-</section>
-
-<section>
-<h2>6. Results: fifty campaigns per method</h2>
-<div class="prose">
-<p>Each method was run 50 times per set with 25 injections per campaign. For random search and BO the campaign number is the seed of the row permutation; for the LLM search it only labels the repeat, since the model's proposals are nondeterministic and every campaign starts from a blank page. "Best @25" is the best CRF a campaign had after its 25th injection, averaged over the 50 repeats. "Found optimum" counts the campaigns whose best was within 1 % of the optimum, which on these sets means CRF ≥ 0.99. "Median injections to optimum" is taken over the campaigns that found it.</p>
-<div id="repeats-summary" class="note"></div>
-</div>
-<div class="tbl" id="repeats-table"></div>
-<figure>
-  <div class="panels" id="repeats-panels"></div>
-  <div class="legend"><span class="ln" style="--c:var(--s-random)">Random search, mean best so far</span><span class="ln" style="--c:var(--s-bo)">Bayesian optimisation, mean best so far</span><span class="ln" style="--c:var(--s-llm)">LLM search, mean best so far</span><span class="dash" style="--c:var(--fg-2)">known optimum</span></div>
-  <figcaption>Mean best CRF so far against injection number, 50 campaigns per method and set. Random search and BO coincide for the first eight injections, which are the same random rows, and separate when the surrogate takes over. The LLM curve starts from its own first scouting gradient.</figcaption>
-</figure>
-
-<div class="tbl" id="checkpoint-table"></div>
-<h3>The best LLM method, as the detector would show it</h3>
-<div class="prose"><p>For each set, the LLM search's best injection (CRF 1.0; among ties, the earliest last peak, which is the criterion the model itself used). The trace is the simulator's detector view: a sum of Gaussians, one per analyte with unit area, sampled at 10 Hz, noise-free. Every peak is baseline-resolved (all adjacent R ≥ 1.5) and the last one elutes inside 10 minutes, so no time penalty applies. Hover a peak apex for its retention time and width.</p></div>
-<div id="chromatograms"></div>
-</section>
-
-<section>
-<h2>7. The LLM search</h2>
+<div class="prose"><p>Random search and BO need no more description than the table gives. The rest of this section is the LLM search: how the harness turns a proposal into an injection, what the system prompt says, and what the model is shown after each injection.</p></div>
 <h3>Architecture</h3>
 <div class="prose"><p>The Python harness owns the budget, the grid, the logging and the conversation. The model answers one question per injection: given everything so far, which method next? Nothing from the analyte parameters, the optimum or any unqueried table row crosses the dashed boundary.</p></div>
 <figure class="diagram">
@@ -507,15 +451,90 @@ Answer with JSON only:
 
 <h3>Reading the result</h3>
 <div class="prose">
-<p>In the seed-0 campaigns shown in section 5 the LLM search found a CRF 1.0 method on every set within five injections and spent the rest of the budget looking for faster or more robust methods at the same score; section 6 shows how that holds up over 50 campaigns. Two things make the behaviour plausible rather than lucky. The prompt tells the model that the best method is the shortest fully resolved one and how slope, window and temperature act on resolution, so its first scouting gradient already lands in the dark region of the landscape, and each later move is one grid step with a stated reason. And the hard set's difficulty is that the good region is small, not that it is hidden: a reader who knows the chemistry can walk to it.</p>
-<p>With 50 campaigns per method the comparison is symmetric in budget and repeats; it is not symmetric in information, since the LLM search carries a domain prior in its prompt that neither baseline has. The follow-ups that would measure that prior are a warm-started variant sharing BO's first eight injections, an ablation without the retention-model section of the prompt, and a memorisation check on a freshly generated analyte set. Section 9 adds a different check: the same prompt and harness driven by a second model.</p>
+<p>In the seed-0 campaigns of section 7 the LLM search finds a CRF 1.0 method on every set within five injections and spends the rest of the budget looking for faster or more robust methods at the same score; section 8 shows how that holds up over 50 campaigns. Two things make the behaviour plausible rather than lucky. The prompt tells the model that the best method is the shortest fully resolved one and how slope, window and temperature act on resolution, so its first scouting gradient already lands in the dark region of the landscape, and each later move is one grid step with a stated reason. And the hard set's difficulty is that the good region is small, not that it is hidden: a reader who knows the chemistry can walk to it.</p>
+<p>With 50 campaigns per method the comparison is symmetric in budget and repeats; it is not symmetric in information, since the LLM search carries a domain prior in its prompt that neither baseline has. The checks that measure that prior are a warm-started variant sharing BO's first eight injections (section 6), the prompt taken apart piece by piece (section 10), the same prompt and harness driven by a second model (section 11) and a memorisation check on freshly generated analyte sets (section 12).</p>
 </div>
 </section>
+<section id="warm-start">
+<h2>6. Same observations, different readers: the warm-start comparison</h2>
+<div class="prose">
+<p>The cold-start campaigns of sections 7 and 8 let the LLM search choose its own scouting runs, so two things differ between it and BO: what each reads and where each starts. This section removes the second difference, and it is the comparison the rest of the report is built on. Every LLM campaign was started on the same eight seeded random injections that open the BO and random-search campaigns of the same seed, with the eight retention tables and scores placed in its conversation as if it had proposed them, and it then proposed the remaining 17 injections itself. Same model (<code>gpt-6-astra</code>), prompt, harness, grid and budget as everywhere else, 50 campaigns per set. The three searches therefore hold the same observations at injection 8 and diverge only in what they make of them: random search draws on, BO fits a Gaussian process to eight scores, the LLM reads eight tables.</p>
 </div>
+<div class="tbl"><table>
+<thead><tr><th>set</th><th>search</th><th class="n">found optimum</th><th class="n">injections to optimum, median (IQR; max)</th><th class="n">of which its own, median (IQR; max)</th><th class="n">found by 10 / 15</th><th class="n">mean best CRF @25</th></tr></thead>
+<tbody>
+<tr><td rowspan="3"><span class="set-tag">easy</span></td><td><span class="kpi sw" style="background:var(--s-random);padding:0;border:0"></span>random</td><td class="n">40 of 50</td><td class="n">10 (5–17; 24)</td><td class="n">—</td><td class="n">23 / 29</td><td class="n">0.979</td></tr>
+<tr><td><span class="kpi sw" style="background:var(--s-bo);padding:0;border:0"></span>BO</td><td class="n">49 of 50</td><td class="n">9 (5–13; 23)</td><td class="n">—</td><td class="n">31 / 43</td><td class="n">1.000</td></tr>
+<tr><td><span class="kpi sw" style="background:var(--s-llm);padding:0;border:0"></span>LLM, warm-started</td><td class="n found">50 of 50</td><td class="n">9 (5–9; 9)</td><td class="n">1 (1–1; 2)</td><td class="n">50 / 50</td><td class="n">1.000</td></tr>
+<tr><td rowspan="3"><span class="set-tag">medium</span></td><td><span class="kpi sw" style="background:var(--s-random);padding:0;border:0"></span>random</td><td class="n">21 of 50</td><td class="n">13 (9–17; 24)</td><td class="n">—</td><td class="n">8 / 15</td><td class="n">0.975</td></tr>
+<tr><td><span class="kpi sw" style="background:var(--s-bo);padding:0;border:0"></span>BO</td><td class="n">42 of 50</td><td class="n">15 (11–19; 25)</td><td class="n">—</td><td class="n">10 / 24</td><td class="n">0.993</td></tr>
+<tr><td><span class="kpi sw" style="background:var(--s-llm);padding:0;border:0"></span>LLM, warm-started</td><td class="n found">50 of 50</td><td class="n">11.5 (10–14; 18)</td><td class="n">3.5 (2–6; 10)</td><td class="n">17 / 41</td><td class="n">1.000</td></tr>
+<tr><td rowspan="3"><span class="set-tag">hard</span></td><td><span class="kpi sw" style="background:var(--s-random);padding:0;border:0"></span>random</td><td class="n">4 of 50</td><td class="n">7 (6–10; 16)</td><td class="n">—</td><td class="n">3 / 3</td><td class="n">0.917</td></tr>
+<tr><td><span class="kpi sw" style="background:var(--s-bo);padding:0;border:0"></span>BO</td><td class="n">20 of 50</td><td class="n">14 (10–17; 25)</td><td class="n">—</td><td class="n">6 / 13</td><td class="n">0.975</td></tr>
+<tr><td><span class="kpi sw" style="background:var(--s-llm);padding:0;border:0"></span>LLM, warm-started</td><td class="n found">50 of 50</td><td class="n">10 (10–11; 15)</td><td class="n">2 (2–3; 7)</td><td class="n">28 / 50</td><td class="n">1.000</td></tr>
+<tr><td colspan="7" style="color:var(--fg-2);font-size:13px">50 campaigns of 25 injections per search and set, all three starting from the same eight seeded random rows. "Found" is a best CRF within 1 % of the optimum; the injection statistics are over the campaigns that found it and count all 25 injections; for the LLM search the next column counts only its own injections after the eight shared ones. The random-search and BO rows are those of section 8, which share the same start. The eight rows contained the optimum in only 19, 5 and 3 campaigns of 50 and included 137 truncated runs across the three sets; the LLM's own 17 injections included none.</td></tr>
+</tbody></table></div>
+<figure>
+  <img src="ablations/warm_start.png" alt="Three panels, one per synthetic set (easy, medium, hard): mean best CRF so far against injection for random search, Bayesian optimisation and the warm-started LLM search over 50 campaigns, all three starting from the same eight random rows; a dotted line marks the hand-over after injection 8. The LLM curve rises to 1.0 within a few injections of the hand-over on every set; BO rises more slowly; random search stays below." loading="lazy">
+  <figcaption>Mean best CRF so far against injection, 50 campaigns per search and synthetic set, all three searches starting from the same eight seeded random rows (dotted line: the hand-over after injection 8). The legend gives the campaigns that reached the optimum. File: <code>ablations/warm_start/results/warm_start.png</code>.</figcaption>
+</figure>
+<h3>What each search made of the eight rows</h3>
+<div class="prose"><p>Given the same eight random injections that open BO's campaign, the LLM reached the optimum in every campaign after a median of 1, 3.5 and 2 further injections of its own (at most 2, 10 and 7), where BO from the same rows reached it in 49, 42 and 20 campaigns after a median of 9, 15 and 14 injections in all, and random search in 40, 21 and 4. By injection 15 the LLM was at the optimum in 50, 41 and 50 campaigns, BO in 43, 24 and 13. Counting all 25, the warm-started LLM needed 9, 11.5 and 10, more than from a cold start (1, 6 and 4; section 8), because eight random rows are worse than its own scouting gradient: they contained the optimum in only 19, 5 and 3 campaigns of 50 and included 137 truncated runs, which the LLM never proposes. The rows were not wasted on it, though. Its first own proposal after reading them scored 0.997, 0.929 and 0.944, against 1.000, 0.592 and 0.931 from a cold start, and on the medium and hard sets it then needed about two fewer injections of its own. The same eight observations carry BO to the optimum in 40 % of hard-set campaigns and the LLM in all of them.</p></div>
 
+<div class="note">What remains asymmetric after the warm start is not the observations but what each search is told they mean: the LLM's prompt states the scoring rule and the instrument bounds, and the per-injection message gives it the two terms of the CRF. Section 10 shows how little of that it needs, and section 11 how much depends on the model behind the prompt. Files: <code>ablations/warm_start/</code>; summarise with <code>python ablations/summary.py</code>, plot with <code>python ablations/warm_start/plot_warm_start.py</code>.</div>
+</section>
+<section id="navigation">
+<h2>7. How each search navigates the landscape</h2>
+<div class="prose"><p>Back to the cold start, where each search opens as it likes: random search and BO with their eight random rows, the LLM search with a scouting gradient of its own choosing. This section follows one campaign of each.</p></div>
+<div class="prose">
+<p>The figures below show seed 0 of each method on each set: the CRF of every injection as a dot, the best CRF so far as a step line. A truncated run (peaks still on the column at 42 min) is a red triangle at its observed score; it is an ordinary poor injection, not a failure.</p>
+</div>
+<figure>
+  <div class="panels" id="search-panels"></div>
+  <div class="legend"><span class="ln" style="--c:var(--s-random)">Random search</span><span class="ln" style="--c:var(--s-bo)">Bayesian optimisation (GP-EI)</span><span class="ln" style="--c:var(--s-llm)">LLM search</span><span class="tri">truncated run, at its observed CRF</span><span class="dash" style="--c:var(--fg-2)">known optimum 1.0</span></div>
+  <figcaption>Seed 0, 25 injections. Random search and BO share injections 1 to 8. The LLM search reaches the optimum at injection 1 (easy), 5 (medium) and 4 (hard) and stays there; BO reaches it at injection 9 on easy and gets to 0.976 on hard; random search stalls at 0.990, 0.887 and 0.881.</figcaption>
+</figure>
 
+<h3>Where each search walked</h3>
+<div class="prose"><p>The same seed-0 campaigns drawn on the φ<sub>1</sub> × t<sub>G</sub> panel of the landscape (best CRF over φ<sub>0</sub> and T). Markers are injections numbered in order and joined in sequence; the ringed marker is the best injection. Random search scatters over the whole box; BO homes in on the dark band after its eight random starts; the LLM search begins with a broad scouting gradient and then moves one grid step at a time along the ridge.</p></div>
+<div id="walks"></div>
+<div class="legend"><span class="ln" style="--c:var(--s-random)">Random search</span><span class="ln" style="--c:var(--s-bo)">Bayesian optimisation</span><span class="ln" style="--c:var(--s-llm)">LLM search</span><span class="star">stored optimum</span></div>
+<h3>The hard set in all six projections</h3>
+<div class="prose"><p>The same three seed-0 campaigns on the hard set, drawn on every pairwise panel of the landscape. The T column is where the methods differ most: random search and BO's first eight injections spread over every temperature, BO's later injections cluster at 35 to 45 °C around its best point, and the LLM search moves to 55 °C at injection 7 and stays there for all but three of the remaining injections.</p></div>
+<div id="hard-corner"></div>
+<h3>Navigation statistics over 50 campaigns</h3>
+<div class="prose"><p>How far each search moves between consecutive injections (Euclidean distance in the unit cube, where the box diagonal is 2.0), how much of its budget it spends at or near the optimum, how often it runs a truncated method, and its mean injection score before and after injection 8, which is where BO's surrogate takes over.</p></div>
+<div class="tbl" id="nav-table"></div>
+<figure>
+  <div class="panels" id="dist-panels"></div>
+  <div class="legend"><span class="ln" style="--c:var(--s-random)">Random search</span><span class="ln" style="--c:var(--s-bo)">Bayesian optimisation</span><span class="ln" style="--c:var(--s-llm)">LLM search</span></div>
+  <figcaption>Mean distance from injection n to the nearest grid method with CRF ≥ 0.99, in unit-cube units, averaged over 50 campaigns. Zero means the injection itself was optimal. Random search stays at the distance of a random draw; BO's distance falls once the surrogate takes over; the LLM search is near the ridge from its first injection and walks along it.</figcaption>
+</figure>
+
+<h3>The LLM search, injection by injection</h3>
+<div class="prose"><p>Every proposal the model made on seed 0, with the rationale it returned alongside the JSON. The hard set is expanded; the others fold.</p></div>
+<div id="llm-logs"></div>
+</section>
 <section>
-<h2>8. Real compounds: two sets from the HPLC Simulator library</h2>
+<h2>8. Results: fifty campaigns per method, cold start</h2>
+<div class="prose">
+<p>Each method was run 50 times per set with 25 injections per campaign. For random search and BO the campaign number is the seed of the row permutation; for the LLM search it only labels the repeat, since the model's proposals are nondeterministic and every campaign starts from a blank page. "Best @25" is the best CRF a campaign had after its 25th injection, averaged over the 50 repeats. "Found optimum" counts the campaigns whose best was within 1 % of the optimum, which on these sets means CRF ≥ 0.99. "Median injections to optimum" is taken over the campaigns that found it.</p>
+<div id="repeats-summary" class="note"></div>
+</div>
+<div class="tbl" id="repeats-table"></div>
+<figure>
+  <div class="panels" id="repeats-panels"></div>
+  <div class="legend"><span class="ln" style="--c:var(--s-random)">Random search, mean best so far</span><span class="ln" style="--c:var(--s-bo)">Bayesian optimisation, mean best so far</span><span class="ln" style="--c:var(--s-llm)">LLM search, mean best so far</span><span class="dash" style="--c:var(--fg-2)">known optimum</span></div>
+  <figcaption>Mean best CRF so far against injection number, 50 campaigns per method and set. Random search and BO coincide for the first eight injections, which are the same random rows, and separate when the surrogate takes over. The LLM curve starts from its own first scouting gradient.</figcaption>
+</figure>
+
+<div class="tbl" id="checkpoint-table"></div>
+<h3>The best LLM method, as the detector would show it</h3>
+<div class="prose"><p>For each set, the LLM search's best injection (CRF 1.0; among ties, the earliest last peak, which is the criterion the model itself used). The trace is the simulator's detector view: a sum of Gaussians, one per analyte with unit area, sampled at 10 Hz, noise-free. Every peak is baseline-resolved (all adjacent R ≥ 1.5) and the last one elutes inside 10 minutes, so no time penalty applies. Hover a peak apex for its retention time and width.</p></div>
+<div id="chromatograms"></div>
+</section>
+<section>
+<h2>9. Real compounds: two sets from the HPLC Simulator library</h2>
 <div class="prose">
 <p>The three sets above are random draws, so a search that does well on them has only been shown to do well on the generator's idea of a mixture. This section repeats the benchmark on measured compounds. The HPLC Simulator (Boswell, Stoll, Carr et al., <i>J. Chem. Educ.</i> 2013, 90, 198) ships a library of 43 compounds measured on two reversed-phase columns, each with a retention surface in both organic fraction and temperature: log<sub>10</sub> k = (w + m·T) + (v + n·T)·φ, with T in °C and separate coefficients for acetonitrile and methanol. The library is redistributed in the project under its CC BY-NC-SA 3.0 licence, and everything derived from it lives in its own data root, <code>hplcsim/</code>, laid out like the project root.</p>
 <p><b>Fitting the library to the simulator.</b> The simulator's model, log<sub>10</sub> k = log k<sub>w</sub> + ΔH (1/T<sub>ref</sub> − 1/T) − S·φ, has a slope S that does not change with temperature; the library's slope does (its n term). So each compound is fitted by weighted linear least squares over the whole method box (φ 0.05 to 0.95, T 25 to 60 °C), with full weight where the true retention factor lies between 0.5 and 50, which is the band in which a gradient actually moves the compound, and a tenth of that weight elsewhere. The three fitted numbers go into the analyte YAML exactly like a generated analyte; the residuals go into a sidecar file. Both sets then run through the same optimum finder, table builder and optimisers with no code change.</p>
@@ -549,7 +568,7 @@ Answer with JSON only:
 </figure>
 
 <h3>Where each search walked</h3>
-<div class="prose"><p>The seed-0 campaign of each method drawn on the φ<sub>1</sub> × t<sub>G</sub> projection of the landscape, as in section 5 for the generated sets. Markers are injections coloured by order, the ring is the best injection, hollow triangles are truncated runs. The full corner plots per method are in <code>hplcsim/results/hplcsim_*_trajectory_{random,bo,llm}.png</code>.</p></div>
+<div class="prose"><p>The seed-0 campaign of each method drawn on the φ<sub>1</sub> × t<sub>G</sub> projection of the landscape, as in section 7 for the generated sets. Markers are injections coloured by order, the ring is the best injection, hollow triangles are truncated runs. The full corner plots per method are in <code>hplcsim/results/hplcsim_*_trajectory_{random,bo,llm}.png</code>.</p></div>
 <figure>
   <div class="panels two">
     <div class="panel"><h4>hplcsim_beh<small>random · BO · LLM, seed 0</small></h4><img src="hplcsim/beh_walks.png" alt="Three panels on the final-fraction by gradient-time landscape of the BEH set: random search scatters over the whole box with six truncated runs at low final fraction; Bayesian optimisation clusters at high final fraction with very short and very long gradients; the LLM search moves in a tight line along the ridge from 0.95 down to 0.65 and finds its best at injection 17" loading="lazy"></div>
@@ -559,7 +578,7 @@ Answer with JSON only:
 </figure>
 
 <h3>How the searches perform</h3>
-<div class="prose"><p>Budget 25 injections as before, and ten campaigns per method and set: random search and BO with seeds 0 to 9, the LLM search ten times from a blank page (the seed only labels the repeat), with the same system prompt as in section 7 and no change for the new sets, which also makes this the memorisation check the design called for: nothing about these compounds was ever in a prompt. "Found" again means a best CRF within 1 % of the stored optimum.</p></div>
+<div class="prose"><p>Budget 25 injections as before, and ten campaigns per method and set: random search and BO with seeds 0 to 9, the LLM search ten times from a blank page (the seed only labels the repeat), with the same system prompt as in section 5 and no change for the new sets, which also makes this the memorisation check the design called for: nothing about these compounds was ever in a prompt. "Found" again means a best CRF within 1 % of the stored optimum.</p></div>
 <div class="tbl"><table>
 <thead><tr><th>set</th><th>method</th><th class="n">campaigns</th><th class="n">mean best @25</th><th class="n">worst campaign</th><th class="n">best campaign</th><th class="n">found optimum</th><th class="n">injections to find it</th><th class="n">mean regret @25</th></tr></thead>
 <tbody>
@@ -649,92 +668,31 @@ Answer with JSON only:
 
 <h3>What carries over, and what does not</h3>
 <div class="prose">
-<p>The ranking of the three searches is the same as on the generated sets, and the LLM search's advantage is if anything larger here, because the good region is smaller and sits at a temperature bound that a one-line reading of the first chromatogram points to. Two cautions apply. Each method ran ten campaigns per set here, not the fifty of section 6, so a one-in-ten event like BO's single success is measured coarsely. And the sets are real compounds seen through the simulator's model: the fit is close for 41 of 43 compounds, but the two weakly retained ones carry the model's inability to let the slope drift with temperature, and the instrument, the peak-width model and the 42 min window are still the simulator's. Files: <code>hplcsim/configs/analytes/hplcsim_*.yaml</code> and <code>.import.json</code>, <code>hplcsim/tables/</code>, <code>hplcsim/results/</code>; rebuild with <code>python -m sim.import_hplcsim --table</code>.</p>
+<p>The ranking of the three searches is the same as on the generated sets, and the LLM search's advantage is if anything larger here, because the good region is smaller and sits at a temperature bound that a one-line reading of the first chromatogram points to. Two cautions apply. Each method ran ten campaigns per set here, not the fifty of section 8, so a one-in-ten event like BO's single success is measured coarsely. And the sets are real compounds seen through the simulator's model: the fit is close for 41 of 43 compounds, but the two weakly retained ones carry the model's inability to let the slope drift with temperature, and the instrument, the peak-width model and the 42 min window are still the simulator's. Files: <code>hplcsim/configs/analytes/hplcsim_*.yaml</code> and <code>.import.json</code>, <code>hplcsim/tables/</code>, <code>hplcsim/results/</code>; rebuild with <code>python -m sim.import_hplcsim --table</code>.</p>
 </div>
 </section>
-
-<section id="model2">
-<h2>9. The same search on a second model</h2>
+<section id="prompts">
+<h2>10. The prompt taken apart</h2>
 <div class="prose">
-<p>Sections 5 to 7 use one model, <code>gpt-6-astra</code>. That leaves open how much of the LLM search's result is the model and how much is the prompt and harness around it. This section repeats the whole LLM benchmark with a second Azure OpenAI deployment, <code>gpt-5.4</code>, and changes nothing else: the same system prompt, the same per-injection user message, the same grid, snap and repeat guard, the same three generated sets, the same budget of 25 and the same 50 campaigns per set. Only the deployment name in the environment file differs, and the second model's campaigns are kept in their own results folder so the resumable runner could not pick up the first model's transcripts.</p>
-<p>The figures and tables below put the two models side by side in the format of sections 5 and 6: one seed-0 campaign per set, then the 50-campaign averages, the checkpoint table and the cost of the calls.</p>
-</div>
-<h3>One campaign per set</h3>
-<div class="prose"><p>Seed 0 of each model on each set: the CRF of every injection as a dot, the best so far as a step line, a truncated run as a red triangle. The seed only labels the repeat; both models start every campaign from a blank page.</p></div>
-<figure>
-  <div class="panels" id="model-search-panels"></div>
-  <div class="legend"><span class="ln" style="--c:var(--s-llm)">gpt-6-astra</span><span class="ln" style="--c:var(--s-llm2)">gpt-5.4</span><span class="tri">truncated run, at its observed CRF</span><span class="dash" style="--c:var(--fg-2)">known optimum 1.0</span></div>
-  <figcaption id="model-search-caption"></figcaption>
-</figure>
-<h3>Fifty campaigns per set</h3>
-<div class="prose"><p>The same statistics as section 6, for the two models. "Best @25" is the best CRF a campaign had after its 25th injection, averaged over the 50 repeats; "found optimum" counts the campaigns whose best was within 1 % of the optimum; "injections to optimum" is the median over the campaigns that found it, with the range in brackets.</p>
-<div id="model-summary" class="note"></div>
-</div>
-<div class="tbl" id="model-repeats-table"></div>
-<figure>
-  <div class="panels" id="model-repeats-panels"></div>
-  <div class="legend"><span class="ln" style="--c:var(--s-llm)">gpt-6-astra, mean best so far</span><span class="ln" style="--c:var(--s-llm2)">gpt-5.4, mean best so far</span><span class="dash" style="--c:var(--fg-2)">known optimum</span></div>
-  <figcaption>Mean best CRF so far against injection number, 50 campaigns per model and set, on the axes of the section 6 figure. The gap between the curves is the cost of the model choice in injections: where gpt-6-astra's curve has already flattened at 1.0, gpt-5.4's is still climbing.</figcaption>
-</figure>
-<div class="tbl" id="model-checkpoint-table"></div>
-<h3>What the calls cost</h3>
-<div class="prose"><p>Per campaign of 25 calls. Prompt tokens are nearly identical because the conversation is the same append-only transcript; the difference is in how much each model writes back, how long each call takes and how often it proposed a method that had already been run (which the harness refuses and re-asks without charging an injection).</p></div>
-<div class="tbl" id="model-cost-table"></div>
-<h3>Reading the result</h3>
-<div class="prose" id="model-reading"></div>
-</section>
-
-<section id="ablations">
-<h2>10. Ablations: where the LLM search's advantage comes from</h2>
-<div class="prose">
-<p>Section 7 lists what the LLM search is told that BO is not: the scoring rule, linear-solvent-strength theory and a few rules of method-development practice, all in the system prompt. Three ablations, run after the main campaigns with the same model (<code>gpt-6-astra</code>), harness, grid and budget and 50 campaigns per set, measure how much of the result that information explains. The first deletes the retention-model section of the prompt (the 21 lines headed "Retention model" in section 7) and changes nothing else. The second starts every LLM campaign on the same eight seeded random injections that open BO's campaign of the same seed, so that the two searches diverge only in what they do with identical observations. The third applies the unchanged prompt and code to three mixtures generated afresh with seed 7 of the generator (easy7, medium7, hard7: 6, 8 and 10 analytes), made after the prompt was frozen, with random search and BO rerun on them for comparison.</p>
+<p>Section 5 lists what the LLM search is told that BO is not: the scoring rule, linear-solvent-strength theory and a few rules of method-development practice, all in the system prompt. The warm start of section 6 showed that the advantage survives when the observations are equalised; this section asks how much of the prompt it needs. The first deletion is the retention-model section (the 21 lines headed "Retention model" in section 5), with the same model (<code>gpt-6-astra</code>), harness, grid and budget and 50 campaigns per set, and nothing else changed.</p>
 </div>
 <div class="tbl"><table>
 <thead><tr><th>variant</th><th>set</th><th class="n">found optimum</th><th class="n">injections to optimum, median (IQR; max)</th><th class="n">found by 5 / 10 / 15</th><th class="n">truncated injections</th><th class="n">CRF of first injection</th></tr></thead>
 <tbody>
-<tr><td rowspan="3">LLM, full prompt (section 6)</td><td><span class="set-tag">easy</span></td><td class="n found">50 of 50</td><td class="n">1 (1–1; 1)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">1.000</td></tr>
+<tr><td rowspan="3">LLM, full prompt (section 8)</td><td><span class="set-tag">easy</span></td><td class="n found">50 of 50</td><td class="n">1 (1–1; 1)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">1.000</td></tr>
 <tr><td><span class="set-tag">medium</span></td><td class="n found">50 of 50</td><td class="n">6 (5–6; 10)</td><td class="n">15 / 50 / 50</td><td class="n">0</td><td class="n">0.592</td></tr>
 <tr><td><span class="set-tag">hard</span></td><td class="n found">50 of 50</td><td class="n">4 (3–4; 5)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">0.931</td></tr>
 <tr><td rowspan="3">LLM, prompt without the retention model</td><td><span class="set-tag">easy</span></td><td class="n found">50 of 50</td><td class="n">1 (1–1; 1)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">1.000</td></tr>
 <tr><td><span class="set-tag">medium</span></td><td class="n found">50 of 50</td><td class="n">6 (5–8; 10)</td><td class="n">13 / 50 / 50</td><td class="n">0</td><td class="n">0.599</td></tr>
 <tr><td><span class="set-tag">hard</span></td><td class="n found">50 of 50</td><td class="n">4 (3–4; 6)</td><td class="n">48 / 50 / 50</td><td class="n">0</td><td class="n">0.934</td></tr>
-<tr><td rowspan="3">LLM, warm start on BO's 8 random rows<br><small style="color:var(--muted)">injection counts include the 8 random rows</small></td><td><span class="set-tag">easy</span></td><td class="n found">50 of 50</td><td class="n">9 (5–9; 9)</td><td class="n">14 / 50 / 50</td><td class="n">0 of its own</td><td class="n">0.997 (first own)</td></tr>
-<tr><td><span class="set-tag">medium</span></td><td class="n found">50 of 50</td><td class="n">11.5 (10–14; 18)</td><td class="n">1 / 17 / 41</td><td class="n">0 of its own</td><td class="n">0.929 (first own)</td></tr>
-<tr><td><span class="set-tag">hard</span></td><td class="n found">50 of 50</td><td class="n">10 (10–11; 15)</td><td class="n">1 / 28 / 50</td><td class="n">0 of its own</td><td class="n">0.944 (first own)</td></tr>
-<tr><td rowspan="3">BO, the same 8 random rows (section 6)</td><td><span class="set-tag">easy</span></td><td class="n">49 of 50</td><td class="n">9 (5–13; 23)</td><td class="n">14 / 31 / 43</td><td class="n">6.4 %</td><td class="n">0.355</td></tr>
-<tr><td><span class="set-tag">medium</span></td><td class="n">42 of 50</td><td class="n">15 (11–19; 25)</td><td class="n">1 / 10 / 24</td><td class="n">2.5 %</td><td class="n">0.601</td></tr>
-<tr><td><span class="set-tag">hard</span></td><td class="n">20 of 50</td><td class="n">14 (10–17; 25)</td><td class="n">1 / 6 / 13</td><td class="n">7.1 %</td><td class="n">0.292</td></tr>
-<tr><td rowspan="3">LLM, fresh family (seed 7)</td><td><span class="set-tag">easy7</span></td><td class="n found">50 of 50</td><td class="n">1 (1–1; 1)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">1.000</td></tr>
-<tr><td><span class="set-tag">medium7</span></td><td class="n found">50 of 50</td><td class="n">2 (2–3; 3)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">0.929</td></tr>
-<tr><td><span class="set-tag">hard7</span></td><td class="n found">50 of 50</td><td class="n">6 (5–6; 7)</td><td class="n">22 / 50 / 50</td><td class="n">0</td><td class="n">0.843</td></tr>
-<tr><td rowspan="3">BO, fresh family</td><td><span class="set-tag">easy7</span></td><td class="n">48 of 50</td><td class="n">4 (2–8; 23)</td><td class="n">29 / 44 / 45</td><td class="n">2.9 %</td><td class="n">0.629</td></tr>
-<tr><td><span class="set-tag">medium7</span></td><td class="n">30 of 50</td><td class="n">17.5 (12–20; 25)</td><td class="n">2 / 7 / 13</td><td class="n">6.0 %</td><td class="n">0.408</td></tr>
-<tr><td><span class="set-tag">hard7</span></td><td class="n">45 of 50</td><td class="n">16 (14–20; 25)</td><td class="n">1 / 3 / 21</td><td class="n">7.0 %</td><td class="n">0.278</td></tr>
-<tr><td rowspan="3">Random search, fresh family</td><td><span class="set-tag">easy7</span></td><td class="n">49 of 50</td><td class="n">4 (2–8; 22)</td><td class="n">29 / 38 / 42</td><td class="n">6.0 %</td><td class="n">0.629</td></tr>
-<tr><td><span class="set-tag">medium7</span></td><td class="n">8 of 50</td><td class="n">9.5 (8–18; 21)</td><td class="n">2 / 5 / 5</td><td class="n">12.9 %</td><td class="n">0.408</td></tr>
-<tr><td><span class="set-tag">hard7</span></td><td class="n">6 of 50</td><td class="n">10 (8–16; 18)</td><td class="n">1 / 3 / 4</td><td class="n">15.6 %</td><td class="n">0.278</td></tr>
-<tr><td colspan="7" style="color:var(--fg-2);font-size:13px">50 campaigns of 25 injections per row. "Found" is a best CRF within 1 % of the optimum; the injection statistics are over the campaigns that found it. For the warm start, injections 1 to 8 are the random rows BO draws for the same seed, so the counts include them; those 8 rows contained 137 truncated runs across the three sets, and the LLM's own 17 injections none. The fresh sets: medium7 and hard7 have 118 and 112 grid rows within 1 % of the optimum (against 500 and 82 for medium and hard); easy7 has 2 929, 13 % of the grid.</td></tr>
+<tr><td colspan="7" style="color:var(--fg-2);font-size:13px">gpt-6-astra, 50 campaigns of 25 injections per row. "Found" is a best CRF within 1 % of the optimum; the injection statistics are over the campaigns that found it. No campaign in either variant ran a truncated method or repeated a proposal.</td></tr>
 </tbody></table></div>
-
 <h3>Without the retention model: nothing changes</h3>
-<div class="prose"><p>Deleting the 21 lines of LSS theory from the prompt changed nothing measurable. All 150 campaigns reached the optimum after the same medians (1, 6 and 4 injections), the same first-injection CRF (1.000, 0.599 and 0.934 against 1.000, 0.592 and 0.931), no truncated method and no repeated proposal. The rationales read the same: in both variants the model writes about slope in about a third of its rationales (31 % against 37 %), temperature in about 40 % and selectivity in about a quarter, and in neither does it ever cite log k, S or the LSS equation. The retention theory the search uses is the model's own, not the prompt's. What the prompt supplied and was not ablated here is the scoring rule, the bounds and the instruction to spend early injections on information; section 11 takes those apart.</p></div>
+<div class="prose"><p>Deleting the 21 lines of LSS theory from the prompt changed nothing measurable. All 150 campaigns reached the optimum after the same medians (1, 6 and 4 injections), the same first-injection CRF (1.000, 0.599 and 0.934 against 1.000, 0.592 and 0.931), no truncated method and no repeated proposal. The rationales read the same: in both variants the model writes about slope in about a third of its rationales (31 % against 37 %), temperature in about 40 % and selectivity in about a quarter, and in neither does it ever cite log k, S or the LSS equation. The retention theory the search uses is the model's own, not the prompt's. What the prompt supplied and was not ablated here is the scoring rule, the bounds and the instruction to spend early injections on information; the five nested prompts below take those apart.</p></div>
 
-<h3>From BO's eight rows: the LLM still gets there</h3>
-<div class="prose"><p>Given the same eight random injections that open BO's campaign, the LLM reached the optimum in every campaign after a median of 1, 3.5 and 2 further injections of its own (at most 2, 10 and 7), where BO from the same rows reached it in 49, 42 and 20 campaigns after a median of 9, 15 and 14 injections in all. Counting all 25, the warm-started LLM needed 9, 11.5 and 10, more than from a cold start (1, 6 and 4), because eight random rows are worse than its own scouting gradient: they contained the optimum in only 19, 5 and 3 campaigns of 50 and included 137 truncated runs, which the LLM never proposes. The rows were not wasted on it, though. Its first own proposal after reading them scored 0.997, 0.929 and 0.944, against 1.000, 0.592 and 0.931 from a cold start, and on the medium and hard sets it then needed about two fewer injections of its own. The same eight observations carry BO to the optimum in 40 % of hard-set campaigns and the LLM in all of them.</p></div>
-
-<h3>On three fresh mixtures: the result reproduces</h3>
-<figure>
-  <img src="ablations/fresh_crf_over_runs.png" alt="Three panels, one per fresh set (easy7, medium7, hard7): mean CRF of injection n and mean best CRF so far for random search, Bayesian optimisation and the LLM search over 50 campaigns. The LLM curve sits at 1.0 from the first few injections on every set; BO rises after injection 8; random search stays low." loading="lazy">
-  <figcaption>The fresh family: mean CRF of each injection (dots, with the 95 % band) and mean best CRF so far (dashed) over 50 campaigns per search and set, on the same axes as the section 6 figure. Random search and BO share injections 1 to 8. File: <code>ablations/fresh/results/crf_over_runs.png</code>.</figcaption>
-</figure>
-<div class="prose"><p>Nothing in the prompt, code or grid was changed between the original family and this one, and the three sets were generated after the prompt was frozen. The ranking and the margins reproduce: the LLM reached the optimum in all 150 campaigns after a median of 1, 2 and 6 injections; BO in 48, 30 and 45 after 4, 17.5 and 16; random search in 49, 8 and 6. So the result on easy, medium and hard is not a property of those three mixtures. The order of difficulty is also not the one BO sees: medium7, where BO found the optimum in 30 campaigns of 50, took the LLM two injections, while hard7, where BO found it in 45, took six. The hard7 optimum starts the gradient at φ<sub>0</sub> ≈ 0.13 rather than at the lower bound of the grid, and the LLM's full-window first injection scored only 0.84 there against 0.93 on medium7. Across the 450 ablation campaigns and the 150 of section 6 the LLM search has still not run a truncated method.</p></div>
-<div class="note">The ablations settle two of the three questions section 7 raised. The advantage is not an artefact of the prompt's theory, since the theory can be deleted and BO's start imposed without changing the outcome, and it is not memorisation of three mixtures. What they leave open is the comparison with retention modelling (a two-gradient LSS fit as a fourth baseline), which no ablation of the LLM can answer, and the step from a noise-free simulator to an instrument. Files: <code>ablations/no_theory/</code>, <code>ablations/warm_start/</code>, <code>ablations/fresh/</code>; summarise with <code>python ablations/summary.py</code>.</div>
-</section>
-
-<section id="prompts">
-<h2>11. Prompt variants on the hard set, with both models</h2>
+<h3>Five nested prompts on the hard set</h3>
 <div class="prose">
-<p>Section 10 removed one section of the prompt with one model. To see how much of the prompt the search needs, and whether the answer depends on the model, five nested versions were run on the hard set with <code>gpt-6-astra</code> and with <code>gpt-5.4</code> (section 9), 50 campaigns each: the full prompt of section 7; without the retention-model section, as in section 10; without the four procedural rules under "How to work" (one grid method per injection and no repeats, early injections buy information, resolve every pair then trade time, avoid truncation), with the theory kept; without the CRF formula, which is replaced by "higher is better" (the procedural rule that restates it is removed with it); and a minimal prompt that keeps only the instrument, the method bounds, the format of a run and the answer format. Each variant is generated from the full prompt by deleting or replacing whole sections (<code>ablations/prompts/make_variants.py</code>), so the files differ only where stated. In every variant the model still receives the CRF and its two terms after each injection, and the harness still refuses a repeated method without charging it.</p>
+<p>That removed one section of the prompt on three sets. To see how much of the prompt the search needs at all, and whether the answer depends on the model, five nested versions were run on the hard set with <code>gpt-6-astra</code> and with the second model of section 11, <code>gpt-5.4</code>, 50 campaigns each: the full prompt of section 5; without the retention-model section, as above; without the four procedural rules under "How to work" (one grid method per injection and no repeats, early injections buy information, resolve every pair then trade time, avoid truncation), with the theory kept; without the CRF formula, which is replaced by "higher is better" (the procedural rule that restates it is removed with it); and a minimal prompt that keeps only the instrument, the method bounds, the format of a run and the answer format. Each variant is generated from the full prompt by deleting or replacing whole sections (<code>ablations/prompts/make_variants.py</code>), so the files differ only where stated. In every variant the model still receives the CRF and its two terms after each injection, and the harness still refuses a repeated method without charging it.</p>
 </div>
 <div class="tbl"><table>
 <thead><tr><th>model</th><th>prompt</th><th class="n">found optimum</th><th class="n">injections to optimum, median (IQR; max)</th><th class="n">found by 5 / 10 / 15</th><th class="n">CRF of first injection</th><th>opening method (campaigns)</th><th class="n">re-asks per campaign</th></tr></thead>
@@ -757,9 +715,66 @@ Answer with JSON only:
 </figure>
 <h3>gpt-6-astra: the prompt changes where the search starts, not where it ends</h3>
 <div class="prose"><p>Every prompt reached the optimum in 50 of 50 campaigns, after a median of 4, 4, 3, 5 and 5 injections and never more than 9. Told the formula, the model opens with a 10 min full-window scouting gradient in 31 of 50 campaigns and a first-injection CRF of 0.93; without the formula it opens with a 20 min gradient in 47 to 50 campaigns (0.87), reads from the returned time term that the last peak costs, and shortens t<sub>G</sub> from its second injection. The cost is one injection in the median and a drop from 50 to about 30 campaigns at the optimum by injection 5; by injection 10 all five variants are at 50. Removing the procedural rules removes the instruction not to repeat a method, and the model then proposed an already-run method about once per campaign (1.0 re-asks per campaign against 0 with the rules). The harness refuses such a proposal and asks again for free; without that rule in the harness, the no-rules and minimal prompts would have spent about one injection per campaign on repeats.</p></div>
-<h3>gpt-5.4: the same in kind, noisier in degree</h3>
-<div class="prose"><p>The full prompt, the prompt without theory and the prompt without the formula reached the optimum in 50, 47 and 50 campaigns after a median of 10.5, 9 and 14 injections. The minimal prompt was its fastest at 8 (interquartile range 4 to 10, at most 14; Mann–Whitney against the full prompt, p &lt; 0.001), and the prompt without procedural rules its slowest, at the optimum in 40 campaigns of 50 (Fisher's exact test against 50 of 50, p &lt; 0.001), with the other ten ending at a best CRF of 0.965 to 0.99, one grid step short. gpt-5.4 also re-proposed run methods more often without the rule (1.3 to 1.5 re-asks per campaign against 0.3 with it). The order of the variants is not the same for the two models, and the spread between prompts on gpt-5.4 (medians 8 to 14) is smaller than the spread between the models on the same prompt (4 against 10.5).</p></div>
-<div class="note">Two things follow. None of the domain content in the prompt, whether retention theory, procedure or the scoring formula, is needed by either model to reach the optimum of the hard set within the budget: what the formula buys is a short opening gradient, worth one or two injections at the start, and what the procedural rules buy is the no-repeat discipline the harness enforces anyway. And the prompt is a second-order effect next to the model: the same five prompts span one injection of median with gpt-6-astra and six with gpt-5.4, and no prompt brings gpt-5.4 to gpt-6-astra's count. The study is confined to the hard set, and 50 campaigns resolve differences of about ten in the found count and about two injections in the median; smaller effects are within noise. Files: <code>ablations/prompts/&lt;variant&gt;/&lt;model&gt;/</code>; summarise with <code>python ablations/prompts/prompt_summary.py</code>.</div>
+<div class="note">None of the domain content in the prompt, whether retention theory, procedure or the scoring formula, is needed by gpt-6-astra to reach the optimum of the hard set within the budget. What the formula buys is a short opening gradient, worth one or two injections at the start, and what the procedural rules buy is the no-repeat discipline the harness enforces anyway. The retention theory the search uses, and the reading of the table that the warm start isolated, are the model's own. Whether that holds for a different model is the question of section 11. Files: <code>ablations/no_theory/</code>, <code>ablations/prompts/&lt;variant&gt;/&lt;model&gt;/</code>; summarise with <code>python ablations/summary.py</code> and <code>python ablations/prompts/prompt_summary.py</code>.</div>
+</section>
+<section id="model2">
+<h2>11. The same search on a second model</h2>
+<div class="prose">
+<p>Sections 5 to 10 use one model, <code>gpt-6-astra</code>. That leaves open how much of the LLM search's result is the model and how much is the prompt and harness around it. This section repeats the whole LLM benchmark with a second Azure OpenAI deployment, <code>gpt-5.4</code>, and changes nothing else: the same system prompt, the same per-injection user message, the same grid, snap and repeat guard, the same three generated sets, the same budget of 25 and the same 50 campaigns per set. Only the deployment name in the environment file differs, and the second model's campaigns are kept in their own results folder so the resumable runner could not pick up the first model's transcripts.</p>
+<p>The figures and tables below put the two models side by side in the format of sections 7 and 8: one seed-0 campaign per set, then the 50-campaign averages, the checkpoint table and the cost of the calls.</p>
+</div>
+<h3>One campaign per set</h3>
+<div class="prose"><p>Seed 0 of each model on each set: the CRF of every injection as a dot, the best so far as a step line, a truncated run as a red triangle. The seed only labels the repeat; both models start every campaign from a blank page.</p></div>
+<figure>
+  <div class="panels" id="model-search-panels"></div>
+  <div class="legend"><span class="ln" style="--c:var(--s-llm)">gpt-6-astra</span><span class="ln" style="--c:var(--s-llm2)">gpt-5.4</span><span class="tri">truncated run, at its observed CRF</span><span class="dash" style="--c:var(--fg-2)">known optimum 1.0</span></div>
+  <figcaption id="model-search-caption"></figcaption>
+</figure>
+<h3>Fifty campaigns per set</h3>
+<div class="prose"><p>The same statistics as section 8, for the two models. "Best @25" is the best CRF a campaign had after its 25th injection, averaged over the 50 repeats; "found optimum" counts the campaigns whose best was within 1 % of the optimum; "injections to optimum" is the median over the campaigns that found it, with the range in brackets.</p>
+<div id="model-summary" class="note"></div>
+</div>
+<div class="tbl" id="model-repeats-table"></div>
+<figure>
+  <div class="panels" id="model-repeats-panels"></div>
+  <div class="legend"><span class="ln" style="--c:var(--s-llm)">gpt-6-astra, mean best so far</span><span class="ln" style="--c:var(--s-llm2)">gpt-5.4, mean best so far</span><span class="dash" style="--c:var(--fg-2)">known optimum</span></div>
+  <figcaption>Mean best CRF so far against injection number, 50 campaigns per model and set, on the axes of the section 8 figure. The gap between the curves is the cost of the model choice in injections: where gpt-6-astra's curve has already flattened at 1.0, gpt-5.4's is still climbing.</figcaption>
+</figure>
+<div class="tbl" id="model-checkpoint-table"></div>
+<h3>What the calls cost</h3>
+<div class="prose"><p>Per campaign of 25 calls. Prompt tokens are nearly identical because the conversation is the same append-only transcript; the difference is in how much each model writes back, how long each call takes and how often it proposed a method that had already been run (which the harness refuses and re-asks without charging an injection).</p></div>
+<div class="tbl" id="model-cost-table"></div>
+<h3>Reading the result</h3>
+<div class="prose" id="model-reading"></div>
+<h3>The five prompts with gpt-5.4: the same in kind, noisier in degree</h3>
+<div class="prose"><p>The five prompts of section 10 were also run on the hard set with gpt-5.4 (second half of the table and the right panel of the figure there). The full prompt, the prompt without theory and the prompt without the formula reached the optimum in 50, 47 and 50 campaigns after a median of 10.5, 9 and 14 injections. The minimal prompt was its fastest at 8 (interquartile range 4 to 10, at most 14; Mann–Whitney against the full prompt, p &lt; 0.001), and the prompt without procedural rules its slowest, at the optimum in 40 campaigns of 50 (Fisher's exact test against 50 of 50, p &lt; 0.001), with the other ten ending at a best CRF of 0.965 to 0.99, one grid step short. gpt-5.4 also re-proposed run methods more often without the rule (1.3 to 1.5 re-asks per campaign against 0.3 with it). The order of the variants is not the same for the two models, and the spread between prompts on gpt-5.4 (medians 8 to 14) is smaller than the spread between the models on the same prompt (4 against 10.5).</p></div>
+<div class="note">Two things follow. Neither model needs the domain content of the prompt to reach the optimum of the hard set within the budget, as section 10 found for the first. And the prompt is a second-order effect next to the model: the same five prompts span one injection of median with gpt-6-astra and six with gpt-5.4, and no prompt brings gpt-5.4 to gpt-6-astra's count. The study is confined to the hard set, and 50 campaigns resolve differences of about ten in the found count and about two injections in the median; smaller effects are within noise. Files: <code>ablations/prompts/&lt;variant&gt;/&lt;model&gt;/</code>; summarise with <code>python ablations/prompts/prompt_summary.py</code>.</div>
+</section>
+<section id="fresh">
+<h2>12. Fresh mixtures: the result is not three sets</h2>
+<div class="prose">
+<p>Everything so far rests on three synthetic mixtures and two measured ones. To check that the result is not a property of those three draws, the unchanged prompt and code were applied to three mixtures generated afresh from the same generator with seed 7 (easy7, medium7 and hard7, with 6, 8 and 10 analytes), made after the prompt was frozen, with random search and BO rerun on them for comparison. Same model, harness, grid and budget, 50 campaigns per search and set.</p>
+</div>
+<div class="tbl"><table>
+<thead><tr><th>variant</th><th>set</th><th class="n">found optimum</th><th class="n">injections to optimum, median (IQR; max)</th><th class="n">found by 5 / 10 / 15</th><th class="n">truncated injections</th><th class="n">CRF of first injection</th></tr></thead>
+<tbody>
+<tr><td rowspan="3">Random search, fresh family</td><td><span class="set-tag">easy7</span></td><td class="n">49 of 50</td><td class="n">4 (2–8; 22)</td><td class="n">29 / 38 / 42</td><td class="n">6.0 %</td><td class="n">0.629</td></tr>
+<tr><td><span class="set-tag">medium7</span></td><td class="n">8 of 50</td><td class="n">9.5 (8–18; 21)</td><td class="n">2 / 5 / 5</td><td class="n">12.9 %</td><td class="n">0.408</td></tr>
+<tr><td><span class="set-tag">hard7</span></td><td class="n">6 of 50</td><td class="n">10 (8–16; 18)</td><td class="n">1 / 3 / 4</td><td class="n">15.6 %</td><td class="n">0.278</td></tr>
+<tr><td rowspan="3">BO, fresh family</td><td><span class="set-tag">easy7</span></td><td class="n">48 of 50</td><td class="n">4 (2–8; 23)</td><td class="n">29 / 44 / 45</td><td class="n">2.9 %</td><td class="n">0.629</td></tr>
+<tr><td><span class="set-tag">medium7</span></td><td class="n">30 of 50</td><td class="n">17.5 (12–20; 25)</td><td class="n">2 / 7 / 13</td><td class="n">6.0 %</td><td class="n">0.408</td></tr>
+<tr><td><span class="set-tag">hard7</span></td><td class="n">45 of 50</td><td class="n">16 (14–20; 25)</td><td class="n">1 / 3 / 21</td><td class="n">7.0 %</td><td class="n">0.278</td></tr>
+<tr><td rowspan="3">LLM, fresh family (seed 7)</td><td><span class="set-tag">easy7</span></td><td class="n found">50 of 50</td><td class="n">1 (1–1; 1)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">1.000</td></tr>
+<tr><td><span class="set-tag">medium7</span></td><td class="n found">50 of 50</td><td class="n">2 (2–3; 3)</td><td class="n">50 / 50 / 50</td><td class="n">0</td><td class="n">0.929</td></tr>
+<tr><td><span class="set-tag">hard7</span></td><td class="n found">50 of 50</td><td class="n">6 (5–6; 7)</td><td class="n">22 / 50 / 50</td><td class="n">0</td><td class="n">0.843</td></tr>
+<tr><td colspan="7" style="color:var(--fg-2);font-size:13px">50 campaigns of 25 injections per row. "Found" is a best CRF within 1 % of the optimum; the injection statistics are over the campaigns that found it; "truncated" is the share of injections that ran a truncated method. Random search and BO share injections 1 to 8 for a given seed. medium7 and hard7 have 118 and 112 grid rows within 1 % of the optimum (against 500 and 82 for medium and hard); easy7 has 2 929, 13 % of the grid.</td></tr>
+</tbody></table></div>
+<figure>
+  <img src="ablations/fresh_crf_over_runs.png" alt="Three panels, one per fresh set (easy7, medium7, hard7): mean CRF of injection n and mean best CRF so far for random search, Bayesian optimisation and the LLM search over 50 campaigns. The LLM curve sits at 1.0 from the first few injections on every set; BO rises after injection 8; random search stays low." loading="lazy">
+  <figcaption>The fresh family: mean CRF of each injection (dots, with the 95 % band) and mean best CRF so far (dashed) over 50 campaigns per search and set, on the same axes as the section 8 figure. Random search and BO share injections 1 to 8. File: <code>ablations/fresh/results/crf_over_runs.png</code>.</figcaption>
+</figure>
+<div class="prose"><p>Nothing in the prompt, code or grid was changed between the original family and this one, and the three sets were generated after the prompt was frozen. The ranking and the margins reproduce: the LLM reached the optimum in all 150 campaigns after a median of 1, 2 and 6 injections; BO in 48, 30 and 45 after 4, 17.5 and 16; random search in 49, 8 and 6. So the result on easy, medium and hard is not a property of those three mixtures. The order of difficulty is also not the one BO sees: medium7, where BO found the optimum in 30 campaigns of 50, took the LLM two injections, while hard7, where BO found it in 45, took six. The hard7 optimum starts the gradient at φ<sub>0</sub> ≈ 0.13 rather than at the lower bound of the grid, and the LLM's full-window first injection scored only 0.84 there against 0.93 on medium7. Across the 600 gpt-6-astra campaigns of sections 6, 10 and 12 and the 150 of section 8 the LLM search has not run a truncated method.</p></div>
+<div class="note">Taken together, sections 6, 10, 11 and 12 answer the four checks section 5 named. The advantage is not where the search starts, since BO's start can be imposed without changing the outcome; it is not an artefact of the prompt's theory, since the theory can be deleted; it is not memorisation of three mixtures; and it holds on a second model, with a larger budget. What they leave open is the comparison with retention modelling (a two-gradient LSS fit as a fourth baseline), which no ablation of the LLM can answer, and the step from a noise-free simulator to an instrument. Files: <code>ablations/fresh/</code>; summarise with <code>python ablations/summary.py</code>.</div>
 </section>
 </div>
 
@@ -1169,7 +1184,7 @@ function drawProfiles() {
   document.getElementById("region-table").innerHTML = html + "</tbody></table>";
 }
 
-/* ---------- section 5: hard-set corner walks, navigation stats, distance curves ---------- */
+/* ---------- section 7: hard-set corner walks, navigation stats, distance curves ---------- */
 function walkOn(parent, s, key, cvar, kx, ky, size) {
   const run = D.traj[s][key];
   const { svg, px, py } = heatmap(parent, D.tables[s].heat[`${kx}|${ky}`], kx, ky, D.optima[s].method, size);
@@ -1228,7 +1243,7 @@ function drawModel2() {
   const firstOpt = (run) => { const f = run.find(o => o.best >= 0.99); return f ? f.run : null; };
   const pair = (s) => [[`llm|${s}`, base, "--s-llm", D.repeats[`llm|${s}`], D.traj[s].llm], [`llm2|${s}`, alt, "--s-llm2", M2.repeats[s], M2.traj[s]]];
 
-  // seed-0 panels, drawn by the section-5 chart with the two models as the series
+  // seed-0 panels, drawn by the section-7 chart with the two models as the series
   const root = document.getElementById("model-search-panels"); root.innerHTML = "";
   const capBits = [];
   for (const s of SETS) {
@@ -1257,7 +1272,7 @@ function drawModel2() {
     `${alt} reached the optimum in <b>${E.found} of ${E.n}</b> campaigns on easy, <b>${Md.found} of ${Md.n}</b> on medium and <b>${Hd.found} of ${Hd.n}</b> on hard, against ${bE.found}, ${bM.found} and ${bH.found} of 50 for ${base}. ` +
     `Median injections to the optimum, ${alt} against ${base}: easy ${med(E.hits)} vs ${med(bE.hits)}, medium ${med(Md.hits)} vs ${med(bM.hits)}, hard ${med(Hd.hits)} vs ${med(bH.hits)}.`;
 
-  // mean best so far, two models per set, on the section-6 axes
+  // mean best so far, two models per set, on the section-8 axes
   const rp = document.getElementById("model-repeats-panels"); rp.innerHTML = "";
   for (const s of SETS) {
     const p = h("div", "panel");
@@ -1298,10 +1313,10 @@ function drawModel2() {
   // reading
   const reasks = SETS.map(s => M2.llmcost[s].reasks).reduce((a, b) => a + b, 0), breasks = SETS.map(s => D.llmcost[s].reasks).reduce((a, b) => a + b, 0);
   document.getElementById("model-reading").innerHTML =
-    `<p>On the final score the two models agree on two of the three sets. On easy and hard every campaign of either model ends within 1 % of the optimum, so on those sets the ceiling is set by the prompt and harness, not by the model. Medium is where they part: ${alt} leaves ${Md.n - Md.found} of ${Md.n} campaigns short, with a worst final CRF of ${Math.min(...Md.final).toFixed(3)}, where ${base} reaches the optimum every time. Medium is also the set that ${base} found slowest in section 6, so it is the one that discriminates between models, despite its name.</p>` +
+    `<p>On the final score the two models agree on two of the three sets. On easy and hard every campaign of either model ends within 1 % of the optimum, so on those sets the ceiling is set by the prompt and harness, not by the model. Medium is where they part: ${alt} leaves ${Md.n - Md.found} of ${Md.n} campaigns short, with a worst final CRF of ${Math.min(...Md.final).toFixed(3)}, where ${base} reaches the optimum every time. Medium is also the set that ${base} found slowest in section 8, so it is the one that discriminates between models, despite its name.</p>` +
     `<p>On sample efficiency the models differ everywhere. ${base} is at the optimum by a median of ${med(bE.hits)}, ${med(bM.hits)} and ${med(bH.hits)} injections on easy, medium and hard; ${alt} needs ${med(E.hits)}, ${med(Md.hits)} and ${med(Hd.hits)}, with a far wider spread (up to ${Math.max(...Hd.hits.filter(x => x !== null))} on hard and ${Math.max(...Md.hits.filter(x => x !== null))} on medium). The checkpoint table shows the same thing as a share: after five injections ${Math.round(bH.foundcurve[4] * 100)} % of ${base}'s hard campaigns are at the optimum against ${Math.round(Hd.foundcurve[4] * 100)} % of ${alt}'s, and the gap only closes at injection 20.</p>` +
     `<p>The cost table points at one reason. ${alt} proposed a method that had already been run ${reasks} times over the 150 campaigns (${M2.llmcost.medium.reasks} of them on medium), against ${breasks} for ${base}; each is a sign of losing track of the transcript it is reading, and the harness only refuses the repeat, it does not say what to do instead. ${alt} also writes about ${Math.round(M2.llmcost.hard.completion_tokens / M2.llmcost.hard.campaigns / 100) * 100} completion tokens per campaign on hard against about ${Math.round(D.llmcost.hard.completion_tokens / D.llmcost.hard.campaigns / 100) * 100} for ${base}, and answers in about a third of the time: its proposals are shorter and quicker, and on the sets with a narrow good region, less well aimed.</p>` +
-    `<p>So the answer to the question this section asks is in two parts. That the LLM search beats random search and BO (section 6) is a property of the method: both models do, by a wide margin, on every set. How fast it gets there, and whether it gets there at all on the set with the smallest good region, depends on the model. A reader who wants to attribute the benchmark result to the prompt rather than to the model should expect the margin over BO to survive a change of model and the sample efficiency not to.</p>`;
+    `<p>So the answer to the question this section asks is in two parts. That the LLM search beats random search and BO (section 8) is a property of the method: both models do, by a wide margin, on every set. How fast it gets there, and whether it gets there at all on the set with the smallest good region, depends on the model. A reader who wants to attribute the benchmark result to the prompt rather than to the model should expect the margin over BO to survive a change of model and the sample efficiency not to.</p>`;
 }
 
 function drawAll() { drawLandscapes(); drawProfiles(); drawSearch(); drawWalks(); drawHardCorner(); drawNav(); drawRepeats(); drawChromatograms(); drawModel2(); }
